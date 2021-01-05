@@ -96,6 +96,8 @@ Summary: The Linux kernel
 %global signkernel 0
 %endif
 
+%global signkernel 0
+
 # Sign modules on all arches
 %global signmodules 1
 
