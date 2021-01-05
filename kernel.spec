@@ -133,6 +133,8 @@ Summary: The Linux kernel
 %endif
 %endif
 
+%global signkernel 0
+
 # Sign modules on all arches
 %global signmodules 1
 
