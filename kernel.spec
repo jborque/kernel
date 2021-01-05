@@ -119,6 +119,19 @@ Summary: The Linux kernel
 %endif
 %endif
 
+# RHEL/CentOS specific .SBAT entries
+%if 0%{?centos}
+%global sbat_suffix centos
+%else
+%if 0%{?fedora}
+%global sbat_suffix fedora
+%else
+%global sbat_suffix rhel
+%endif
+%endif
+
+%global signkernel 0
+
 # Sign modules on all arches
 %global signmodules 1
 
