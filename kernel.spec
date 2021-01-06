@@ -194,7 +194,7 @@ Summary: The Linux kernel
 # standard kernel
 %define with_up        %{?_without_up:        0} %{?!_without_up:        1}
 # build also debug variants
-%define with_debug     %{?_without_debug:     0} %{?!_without_debug:     1}
+%define with_debug 0
 # kernel-zfcpdump (s390 specific kernel for zfcpdump)
 %define with_zfcpdump  %{?_without_zfcpdump:  0} %{?!_without_zfcpdump:  1}
 # kernel-16k (aarch64 kernel with 16K page_size)
@@ -224,7 +224,7 @@ Summary: The Linux kernel
 # bpf tool
 %define with_bpftool   %{?_without_bpftool:   0} %{?!_without_bpftool:   1}
 # kernel-debuginfo
-%define with_debuginfo %{?_without_debuginfo: 0} %{?!_without_debuginfo: 1}
+%define with_debuginfo 0
 # kernel-abi-stablelists
 %define with_kernel_abi_stablelists %{?_without_kernel_abi_stablelists: 0} %{?!_without_kernel_abi_stablelists: 1}
 # internal samples and selftests
