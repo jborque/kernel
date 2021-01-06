@@ -131,7 +131,7 @@ Summary: The Linux kernel
 # kernel PAE (only valid for ARM (lpae))
 %define with_pae       %{?_without_pae:       0} %{?!_without_pae:       1}
 # kernel-debug
-%define with_debug     %{?_without_debug:     0} %{?!_without_debug:     1}
+%define with_debug 0
 # kernel-doc
 %define with_doc       %{?_without_doc:       0} %{?!_without_doc:       1}
 # kernel-headers
@@ -144,7 +144,7 @@ Summary: The Linux kernel
 # bpf tool
 %define with_bpftool   %{?_without_bpftool:   0} %{?!_without_bpftool:   1}
 # kernel-debuginfo
-%define with_debuginfo %{?_without_debuginfo: 0} %{?!_without_debuginfo: 1}
+%define with_debuginfo 0
 # Want to build a the vsdo directories installed
 %define with_vdso_install %{?_without_vdso_install: 0} %{?!_without_vdso_install: 1}
 # kernel-zfcpdump (s390 specific kernel for zfcpdump)
