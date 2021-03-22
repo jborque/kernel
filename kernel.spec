@@ -106,7 +106,7 @@ Summary: The Linux kernel
 %global zcpu `nproc --all`
 %endif
 
-# define buildid .local
+%define buildid .jb
 
 
 %if 0%{?fedora}
@@ -120,13 +120,13 @@ Summary: The Linux kernel
 
 %define rpmversion 5.13.1
 %define stableversion 5.13
-%define pkgrelease 300
+%define pkgrelease 350
 
 # This is needed to do merge window version magic
 %define patchlevel 13
 
 # allow pkg_release to have configurable %%{?dist} tag
-%define specrelease 300%{?buildid}%{?dist}
+%define specrelease 350%{?buildid}%{?dist}
 
 %define pkg_release %{specrelease}
 
