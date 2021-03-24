@@ -822,6 +822,7 @@ Patch1: patch-%{rpmversion}-redhat.patch
 # Changes were introduced between Jan 15, 2021 and Mar 11, 2021
 # https://github.com/torvalds/linux/commits/master/drivers/usb/host/xhci-ring.c
 # Patch900: 0001-Revert-usb-xhci-changes-that-caused-issues-with-usb-.patch
+Patch901: 0001-Revert-to-allow-hibernate-while-kernel-lockdown.patch
 
 # empty final patch to facilitate testing of kernel patches
 Patch999999: linux-kernel-test.patch
@@ -1362,7 +1363,9 @@ ApplyOptionalPatch patch-%{rpmversion}-redhat.patch
 %endif
 
 # ApplyOptionalPatch 0001-Revert-usb-xhci-changes-that-caused-issues-with-usb-.patch
-# 
+#
+ApplyOptionalPatch 0001-Revert-to-allow-hibernate-while-kernel-lockdown.patch
+
 ApplyOptionalPatch linux-kernel-test.patch
 
 # END OF PATCH APPLICATIONS
