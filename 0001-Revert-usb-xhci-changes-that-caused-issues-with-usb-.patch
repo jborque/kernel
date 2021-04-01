@@ -1,0 +1,504 @@
+From 4ec704992e855f089fa256297f94bf9d00ff1a77 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jer=C3=B3nimo=20Borque?= <jeronimo@borque.com.ar>
+Date: Mon, 29 Mar 2021 23:33:48 -0300
+Subject: [PATCH] Revert "usb: xhci: do not perform Soft Retry for some xHCI
+ hosts"
+
+---
+ drivers/usb/host/xhci-pci.c  | 5 -----
+ drivers/usb/host/xhci-ring.c | 3 +--
+ drivers/usb/host/xhci.h      | 1 -
+ 3 files changed, 1 insertion(+), 8 deletions(-)
+
+diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
+index 5bbccc9a017..c1694fc5f89 100644
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -299,11 +299,6 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
+ 	     pdev->device == 0x9026)
+ 		xhci->quirks |= XHCI_RESET_PLL_ON_DISCONNECT;
+
+-	if (pdev->vendor == PCI_VENDOR_ID_AMD &&
+-	    (pdev->device == PCI_DEVICE_ID_AMD_PROMONTORYA_2 ||
+-	     pdev->device == PCI_DEVICE_ID_AMD_PROMONTORYA_4))
+-		xhci->quirks |= XHCI_NO_SOFT_RETRY;
+-
+ 	if (xhci->quirks & XHCI_RESET_ON_RESUME)
+ 		xhci_dbg_trace(xhci, trace_xhci_dbg_quirks,
+ 				"QUIRK: Resetting on resume");
+diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+index ce38076901e..5e548a1c93a 100644
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -2484,8 +2484,7 @@ static int process_bulk_intr_td(struct xhci_hcd *xhci, struct xhci_td *td,
+ 		remaining	= 0;
+ 		break;
+ 	case COMP_USB_TRANSACTION_ERROR:
+-		if (xhci->quirks & XHCI_NO_SOFT_RETRY ||
+-		    (ep_ring->err_count++ > MAX_SOFT_RETRY) ||
++		if ((ep_ring->err_count++ > MAX_SOFT_RETRY) ||
+ 		    le32_to_cpu(slot_ctx->tt_info) & TT_SLOT)
+ 			break;
+
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index ca822ad3b65..d41de5dc045 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -1891,7 +1891,6 @@ struct xhci_hcd {
+ #define XHCI_SKIP_PHY_INIT	BIT_ULL(37)
+ #define XHCI_DISABLE_SPARSE	BIT_ULL(38)
+ #define XHCI_SG_TRB_CACHE_SIZE_QUIRK	BIT_ULL(39)
+-#define XHCI_NO_SOFT_RETRY	BIT_ULL(40)
+
+ 	unsigned int		num_active_eps;
+ 	unsigned int		limit_active_eps;
+--
+2.30.2
+
+
+From fdac930940573ee95bc43fc1ea9540419b164f40 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jer=C3=B3nimo=20Borque?= <jeronimo@borque.com.ar>
+Date: Thu, 30 Apr 2020 19:24:12 -0300
+Subject: [PATCH 1/3] Revert "xhci: Don't clear hub TT buffer on ep0 protocol
+ stall"
+
+This reverts commit 63ef955ff5e4c3fddfb0356fc01843706f61c88a.
+---
+ drivers/usb/host/xhci-ring.c | 16 +++++-----------
+ 1 file changed, 5 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+index 2fbc00c0a..bd5a8334e 100644
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -1872,6 +1872,7 @@ static void xhci_cleanup_halted_endpoint(struct xhci_hcd *xhci,
+ 		ep->ep_state |= EP_HARD_CLEAR_TOGGLE;
+ 		xhci_cleanup_stalled_ring(xhci, slot_id, ep_index, stream_id,
+ 					  td);
++		xhci_clear_hub_tt_buffer(xhci, td, ep);
+ 	}
+ 	xhci_ring_cmd_db(xhci);
+ }
+@@ -1992,18 +1993,11 @@ static int finish_td(struct xhci_hcd *xhci, struct xhci_td *td,
+ 	if (trb_comp_code == COMP_STALL_ERROR ||
+ 		xhci_requires_manual_halt_cleanup(xhci, ep_ctx,
+ 						trb_comp_code)) {
+-		/*
+-		 * xhci internal endpoint state will go to a "halt" state for
+-		 * any stall, including default control pipe protocol stall.
+-		 * To clear the host side halt we need to issue a reset endpoint
+-		 * command, followed by a set dequeue command to move past the
+-		 * TD.
+-		 * Class drivers clear the device side halt from a functional
+-		 * stall later. Hub TT buffer should only be cleared for FS/LS
+-		 * devices behind HS hubs for functional stalls.
++		/* Issue a reset endpoint command to clear the host side
++		 * halt, followed by a set dequeue command to move the
++		 * dequeue pointer past the TD.
++		 * The class driver clears the device side halt later.
+ 		 */
+-		if ((ep_index != 0) || (trb_comp_code != COMP_STALL_ERROR))
+-			xhci_clear_hub_tt_buffer(xhci, td, ep);
+ 		xhci_cleanup_halted_endpoint(xhci, slot_id, ep_index,
+ 					ep_ring->stream_id, td, EP_HARD_RESET);
+ 	} else {
+--
+2.25.4
+
+
+From 1f6953f7fc57d7dc7759dfb7a1684bd3fd9f875c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jer=C3=B3nimo=20Borque?= <jeronimo@borque.com.ar>
+Date: Thu, 30 Apr 2020 19:24:23 -0300
+Subject: [PATCH 2/3] Revert "xhci: Fix handling halted endpoint even if
+ endpoint ring appears empty"
+
+This reverts commit ce08e3298bba3f09e0d033608317b83a4d7565ce.
+---
+ drivers/usb/host/xhci-ring.c | 30 +-----------------------------
+ drivers/usb/host/xhci.c      | 14 +++++++-------
+ drivers/usb/host/xhci.h      |  5 ++---
+ 3 files changed, 10 insertions(+), 39 deletions(-)
+
+diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+index bd5a8334e..c1e63af88 100644
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -547,23 +547,6 @@ void xhci_find_new_dequeue_state(struct xhci_hcd *xhci,
+ 				stream_id);
+ 		return;
+ 	}
+-	/*
+-	 * A cancelled TD can complete with a stall if HW cached the trb.
+-	 * In this case driver can't find cur_td, but if the ring is empty we
+-	 * can move the dequeue pointer to the current enqueue position.
+-	 */
+-	if (!cur_td) {
+-		if (list_empty(&ep_ring->td_list)) {
+-			state->new_deq_seg = ep_ring->enq_seg;
+-			state->new_deq_ptr = ep_ring->enqueue;
+-			state->new_cycle_state = ep_ring->cycle_state;
+-			goto done;
+-		} else {
+-			xhci_warn(xhci, "Can't find new dequeue state, missing cur_td\n");
+-			return;
+-		}
+-	}
+-
+ 	/* Dig out the cycle state saved by the xHC during the stop ep cmd */
+ 	xhci_dbg_trace(xhci, trace_xhci_dbg_cancel_urb,
+ 			"Finding endpoint context");
+@@ -609,7 +592,6 @@ void xhci_find_new_dequeue_state(struct xhci_hcd *xhci,
+ 	state->new_deq_seg = new_seg;
+ 	state->new_deq_ptr = new_deq;
+
+-done:
+ 	/* Don't update the ring cycle state for the producer (us). */
+ 	xhci_dbg_trace(xhci, trace_xhci_dbg_cancel_urb,
+ 			"Cycle state = 0x%x", state->new_cycle_state);
+@@ -1870,8 +1852,7 @@ static void xhci_cleanup_halted_endpoint(struct xhci_hcd *xhci,
+
+ 	if (reset_type == EP_HARD_RESET) {
+ 		ep->ep_state |= EP_HARD_CLEAR_TOGGLE;
+-		xhci_cleanup_stalled_ring(xhci, slot_id, ep_index, stream_id,
+-					  td);
++		xhci_cleanup_stalled_ring(xhci, ep_index, stream_id, td);
+ 		xhci_clear_hub_tt_buffer(xhci, td, ep);
+ 	}
+ 	xhci_ring_cmd_db(xhci);
+@@ -2550,15 +2531,6 @@ static int handle_tx_event(struct xhci_hcd *xhci,
+ 				xhci_dbg(xhci, "td_list is empty while skip flag set. Clear skip flag for slot %u ep %u.\n",
+ 					 slot_id, ep_index);
+ 			}
+-			if (trb_comp_code == COMP_STALL_ERROR ||
+-			    xhci_requires_manual_halt_cleanup(xhci, ep_ctx,
+-							      trb_comp_code)) {
+-				xhci_cleanup_halted_endpoint(xhci, slot_id,
+-							     ep_index,
+-							     ep_ring->stream_id,
+-							     NULL,
+-							     EP_HARD_RESET);
+-			}
+ 			goto cleanup;
+ 		}
+
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index bee5deccc..fe3827536 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -3031,19 +3031,19 @@ static void xhci_setup_input_ctx_for_quirk(struct xhci_hcd *xhci,
+ 			added_ctxs, added_ctxs);
+ }
+
+-void xhci_cleanup_stalled_ring(struct xhci_hcd *xhci, unsigned int slot_id,
+-			       unsigned int ep_index, unsigned int stream_id,
+-			       struct xhci_td *td)
++void xhci_cleanup_stalled_ring(struct xhci_hcd *xhci, unsigned int ep_index,
++			       unsigned int stream_id, struct xhci_td *td)
+ {
+ 	struct xhci_dequeue_state deq_state;
++	struct usb_device *udev = td->urb->dev;
+
+ 	xhci_dbg_trace(xhci, trace_xhci_dbg_reset_ep,
+ 			"Cleaning up stalled endpoint ring");
+ 	/* We need to move the HW's dequeue pointer past this TD,
+ 	 * or it will attempt to resend it on the next doorbell ring.
+ 	 */
+-	xhci_find_new_dequeue_state(xhci, slot_id, ep_index, stream_id, td,
+-				    &deq_state);
++	xhci_find_new_dequeue_state(xhci, udev->slot_id,
++			ep_index, stream_id, td, &deq_state);
+
+ 	if (!deq_state.new_deq_ptr || !deq_state.new_deq_seg)
+ 		return;
+@@ -3054,7 +3054,7 @@ void xhci_cleanup_stalled_ring(struct xhci_hcd *xhci, unsigned int slot_id,
+ 	if (!(xhci->quirks & XHCI_RESET_EP_QUIRK)) {
+ 		xhci_dbg_trace(xhci, trace_xhci_dbg_reset_ep,
+ 				"Queueing new dequeue state");
+-		xhci_queue_new_dequeue_state(xhci, slot_id,
++		xhci_queue_new_dequeue_state(xhci, udev->slot_id,
+ 				ep_index, &deq_state);
+ 	} else {
+ 		/* Better hope no one uses the input context between now and the
+@@ -3065,7 +3065,7 @@ void xhci_cleanup_stalled_ring(struct xhci_hcd *xhci, unsigned int slot_id,
+ 		xhci_dbg_trace(xhci, trace_xhci_dbg_quirks,
+ 				"Setting up input context for "
+ 				"configure endpoint command");
+-		xhci_setup_input_ctx_for_quirk(xhci, slot_id,
++		xhci_setup_input_ctx_for_quirk(xhci, udev->slot_id,
+ 				ep_index, &deq_state);
+ 	}
+ }
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index 02f972e46..fb1ab63b5 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -2116,9 +2116,8 @@ void xhci_find_new_dequeue_state(struct xhci_hcd *xhci,
+ void xhci_queue_new_dequeue_state(struct xhci_hcd *xhci,
+ 		unsigned int slot_id, unsigned int ep_index,
+ 		struct xhci_dequeue_state *deq_state);
+-void xhci_cleanup_stalled_ring(struct xhci_hcd *xhci, unsigned int slot_id,
+-			       unsigned int ep_index, unsigned int stream_id,
+-			       struct xhci_td *td);
++void xhci_cleanup_stalled_ring(struct xhci_hcd *xhci, unsigned int ep_index,
++		unsigned int stream_id, struct xhci_td *td);
+ void xhci_stop_endpoint_command_watchdog(struct timer_list *t);
+ void xhci_handle_command_timeout(struct work_struct *work);
+
+--
+2.25.4
+
+
+From 67ba16b5db9d48f18eb3733cf42fb44a75a4cb4e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jer=C3=B3nimo=20Borque?= <jeronimo@borque.com.ar>
+Date: Mon, 13 Jan 2020 09:50:33 -0300
+Subject: [PATCH 3/3] Revert usb xhci changes that caused issues with usb
+ devices
+
+This reverts commits
+18b74067ac78a2dea65783314c13df98a53d071c xhci: Fix use-after-free
+regression in xhci clear hub TT implementation
+cfbb8a84c2d2ef49bccacb511002bca4f6053555 xhci: Fix NULL pointer
+dereference in xhci_clear_tt_buffer_complete()
+ef513be0a9057cc6baf5d29566aaaefa214ba344 usb: xhci: Add Clear_TT_Buffer
+4998f1efd1904dd21697aeeead270e3eb97691dd usb: Add devaddr in struct
+usb_device
+---
+ drivers/usb/core/hub.c       |  4 +--
+ drivers/usb/host/xhci-ring.c | 27 +--------------
+ drivers/usb/host/xhci.c      | 67 ------------------------------------
+ drivers/usb/host/xhci.h      |  5 ---
+ include/linux/usb.h          |  2 --
+ 5 files changed, 2 insertions(+), 103 deletions(-)
+
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index 2b6565c06..e6c50cb43 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -876,7 +876,7 @@ int usb_hub_clear_tt_buffer(struct urb *urb)
+ 	/* info that CLEAR_TT_BUFFER needs */
+ 	clear->tt = tt->multi ? udev->ttport : 1;
+ 	clear->devinfo = usb_pipeendpoint (pipe);
+-	clear->devinfo |= ((u16)udev->devaddr) << 4;
++	clear->devinfo |= udev->devnum << 4;
+ 	clear->devinfo |= usb_pipecontrol(pipe)
+ 			? (USB_ENDPOINT_XFER_CONTROL << 11)
+ 			: (USB_ENDPOINT_XFER_BULK << 11);
+@@ -2142,8 +2142,6 @@ static void update_devnum(struct usb_device *udev, int devnum)
+ 	/* The address for a WUSB device is managed by wusbcore. */
+ 	if (!udev->wusb)
+ 		udev->devnum = devnum;
+-	if (!udev->devaddr)
+-		udev->devaddr = (u8)devnum;
+ }
+
+ static void hub_free_dev(struct usb_device *udev)
+diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+index c1e63af88..f7d6baafc 100644
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -402,7 +402,7 @@ void xhci_ring_ep_doorbell(struct xhci_hcd *xhci,
+ 	 * stream once the endpoint is on the HW schedule.
+ 	 */
+ 	if ((ep_state & EP_STOP_CMD_PENDING) || (ep_state & SET_DEQ_PENDING) ||
+-	    (ep_state & EP_HALTED) || (ep_state & EP_CLEARING_TT))
++	    (ep_state & EP_HALTED))
+ 		return;
+
+ 	trace_xhci_ring_ep_doorbell(slot_id, DB_VALUE(ep_index, stream_id));
+@@ -439,13 +439,6 @@ static void ring_doorbell_for_active_rings(struct xhci_hcd *xhci,
+ 	}
+ }
+
+-void xhci_ring_doorbell_for_active_rings(struct xhci_hcd *xhci,
+-		unsigned int slot_id,
+-		unsigned int ep_index)
+-{
+-	ring_doorbell_for_active_rings(xhci, slot_id, ep_index);
+-}
+-
+ /* Get the right ring for the given slot_id, ep_index and stream_id.
+  * If the endpoint supports streams, boundary check the URB's stream ID.
+  * If the endpoint doesn't support streams, return the singular endpoint ring.
+@@ -1810,23 +1803,6 @@ struct xhci_segment *trb_in_td(struct xhci_hcd *xhci,
+ 	return NULL;
+ }
+
+-static void xhci_clear_hub_tt_buffer(struct xhci_hcd *xhci, struct xhci_td *td,
+-		struct xhci_virt_ep *ep)
+-{
+-	/*
+-	 * As part of low/full-speed endpoint-halt processing
+-	 * we must clear the TT buffer (USB 2.0 specification 11.17.5).
+-	 */
+-	if (td->urb->dev->tt && !usb_pipeint(td->urb->pipe) &&
+-	    (td->urb->dev->tt->hub != xhci_to_hcd(xhci)->self.root_hub) &&
+-	    !(ep->ep_state & EP_CLEARING_TT)) {
+-		ep->ep_state |= EP_CLEARING_TT;
+-		td->urb->ep->hcpriv = td->urb->dev;
+-		if (usb_hub_clear_tt_buffer(td->urb))
+-			ep->ep_state &= ~EP_CLEARING_TT;
+-	}
+-}
+-
+ static void xhci_cleanup_halted_endpoint(struct xhci_hcd *xhci,
+ 		unsigned int slot_id, unsigned int ep_index,
+ 		unsigned int stream_id, struct xhci_td *td,
+@@ -1853,7 +1829,6 @@ static void xhci_cleanup_halted_endpoint(struct xhci_hcd *xhci,
+ 	if (reset_type == EP_HARD_RESET) {
+ 		ep->ep_state |= EP_HARD_CLEAR_TOGGLE;
+ 		xhci_cleanup_stalled_ring(xhci, ep_index, stream_id, td);
+-		xhci_clear_hub_tt_buffer(xhci, td, ep);
+ 	}
+ 	xhci_ring_cmd_db(xhci);
+ }
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index fe3827536..e726eac63 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -3070,48 +3070,6 @@ void xhci_cleanup_stalled_ring(struct xhci_hcd *xhci, unsigned int ep_index,
+ 	}
+ }
+
+-static void xhci_endpoint_disable(struct usb_hcd *hcd,
+-				  struct usb_host_endpoint *host_ep)
+-{
+-	struct xhci_hcd		*xhci;
+-	struct xhci_virt_device	*vdev;
+-	struct xhci_virt_ep	*ep;
+-	struct usb_device	*udev;
+-	unsigned long		flags;
+-	unsigned int		ep_index;
+-
+-	xhci = hcd_to_xhci(hcd);
+-rescan:
+-	spin_lock_irqsave(&xhci->lock, flags);
+-
+-	udev = (struct usb_device *)host_ep->hcpriv;
+-	if (!udev || !udev->slot_id)
+-		goto done;
+-
+-	vdev = xhci->devs[udev->slot_id];
+-	if (!vdev)
+-		goto done;
+-
+-	ep_index = xhci_get_endpoint_index(&host_ep->desc);
+-	ep = &vdev->eps[ep_index];
+-	if (!ep)
+-		goto done;
+-
+-	/* wait for hub_tt_work to finish clearing hub TT */
+-	if (ep->ep_state & EP_CLEARING_TT) {
+-		spin_unlock_irqrestore(&xhci->lock, flags);
+-		schedule_timeout_uninterruptible(1);
+-		goto rescan;
+-	}
+-
+-	if (ep->ep_state)
+-		xhci_dbg(xhci, "endpoint disable with ep_state 0x%x\n",
+-			 ep->ep_state);
+-done:
+-	host_ep->hcpriv = NULL;
+-	spin_unlock_irqrestore(&xhci->lock, flags);
+-}
+-
+ /*
+  * Called after usb core issues a clear halt control message.
+  * The host side of the halt should already be cleared by a reset endpoint
+@@ -4213,8 +4171,6 @@ static int xhci_setup_device(struct usb_hcd *hcd, struct usb_device *udev,
+ 	/* Zero the input context control for later use */
+ 	ctrl_ctx->add_flags = 0;
+ 	ctrl_ctx->drop_flags = 0;
+-	slot_ctx = xhci_get_slot_ctx(xhci, virt_dev->out_ctx);
+-	udev->devaddr = (u8)(le32_to_cpu(slot_ctx->dev_state) & DEV_ADDR_MASK);
+
+ 	xhci_dbg_trace(xhci, trace_xhci_dbg_address,
+ 		       "Internal device address = %d",
+@@ -5270,27 +5226,6 @@ int xhci_gen_setup(struct usb_hcd *hcd, xhci_get_quirks_t get_quirks)
+ }
+ EXPORT_SYMBOL_GPL(xhci_gen_setup);
+
+-static void xhci_clear_tt_buffer_complete(struct usb_hcd *hcd,
+-		struct usb_host_endpoint *ep)
+-{
+-	struct xhci_hcd *xhci;
+-	struct usb_device *udev;
+-	unsigned int slot_id;
+-	unsigned int ep_index;
+-	unsigned long flags;
+-
+-	xhci = hcd_to_xhci(hcd);
+-
+-	spin_lock_irqsave(&xhci->lock, flags);
+-	udev = (struct usb_device *)ep->hcpriv;
+-	slot_id = udev->slot_id;
+-	ep_index = xhci_get_endpoint_index(&ep->desc);
+-
+-	xhci->devs[slot_id]->eps[ep_index].ep_state &= ~EP_CLEARING_TT;
+-	xhci_ring_doorbell_for_active_rings(xhci, slot_id, ep_index);
+-	spin_unlock_irqrestore(&xhci->lock, flags);
+-}
+-
+ static const struct hc_driver xhci_hc_driver = {
+ 	.description =		"xhci-hcd",
+ 	.product_desc =		"xHCI Host Controller",
+@@ -5323,7 +5258,6 @@ static const struct hc_driver xhci_hc_driver = {
+ 	.free_streams =		xhci_free_streams,
+ 	.add_endpoint =		xhci_add_endpoint,
+ 	.drop_endpoint =	xhci_drop_endpoint,
+-	.endpoint_disable =	xhci_endpoint_disable,
+ 	.endpoint_reset =	xhci_endpoint_reset,
+ 	.check_bandwidth =	xhci_check_bandwidth,
+ 	.reset_bandwidth =	xhci_reset_bandwidth,
+@@ -5354,7 +5288,6 @@ static const struct hc_driver xhci_hc_driver = {
+ 	.enable_usb3_lpm_timeout =	xhci_enable_usb3_lpm_timeout,
+ 	.disable_usb3_lpm_timeout =	xhci_disable_usb3_lpm_timeout,
+ 	.find_raw_port_number =	xhci_find_raw_port_number,
+-	.clear_tt_buffer_complete = xhci_clear_tt_buffer_complete,
+ };
+
+ void xhci_init_driver(struct hc_driver *drv,
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index fb1ab63b5..fcd74e884 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -936,8 +936,6 @@ struct xhci_virt_ep {
+ #define EP_GETTING_NO_STREAMS	(1 << 5)
+ #define EP_HARD_CLEAR_TOGGLE	(1 << 6)
+ #define EP_SOFT_CLEAR_TOGGLE	(1 << 7)
+-/* usb_hub_clear_tt_buffer is in progress */
+-#define EP_CLEARING_TT		(1 << 8)
+ 	/* ----  Related to URB cancellation ---- */
+ 	struct list_head	cancelled_td_list;
+ 	/* Watchdog timer for stop endpoint command to cancel URBs */
+@@ -2123,9 +2121,6 @@ void xhci_handle_command_timeout(struct work_struct *work);
+
+ void xhci_ring_ep_doorbell(struct xhci_hcd *xhci, unsigned int slot_id,
+ 		unsigned int ep_index, unsigned int stream_id);
+-void xhci_ring_doorbell_for_active_rings(struct xhci_hcd *xhci,
+-		unsigned int slot_id,
+-		unsigned int ep_index);
+ void xhci_cleanup_command_queue(struct xhci_hcd *xhci);
+ void inc_deq(struct xhci_hcd *xhci, struct xhci_ring *ring);
+ unsigned int count_trbs(u64 addr, u64 len);
+diff --git a/include/linux/usb.h b/include/linux/usb.h
+index e656e7b4b..ed982f9a3 100644
+--- a/include/linux/usb.h
++++ b/include/linux/usb.h
+@@ -577,7 +577,6 @@ struct usb3_lpm_parameters {
+  * @bus_mA: Current available from the bus
+  * @portnum: parent port number (origin 1)
+  * @level: number of USB hub ancestors
+- * @devaddr: device address, XHCI: assigned by HW, others: same as devnum
+  * @can_submit: URBs may be submitted
+  * @persist_enabled:  USB_PERSIST enabled for this device
+  * @have_langid: whether string_langid is valid
+@@ -661,7 +660,6 @@ struct usb_device {
+ 	unsigned short bus_mA;
+ 	u8 portnum;
+ 	u8 level;
+-	u8 devaddr;
+
+ 	unsigned can_submit:1;
+ 	unsigned persist_enabled:1;
+--
+2.25.4
