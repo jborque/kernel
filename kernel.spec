@@ -813,6 +813,16 @@ Source4001: rpminspect.yaml
 Patch1: patch-%{rpmversion}-redhat.patch
 %endif
 
+# Revert usb xhci changes that caused issues with usb devices
+#
+# Abandoning USB patching but leaving a note here
+# 5.12.0-0.rc4 introduces too many changes in xHCI to revert without testing
+# if they correct the problem I was having since a while ago.
+# Removing the patch from the spec but keeping the patch until test is done.
+# Changes were introduced between Jan 15, 2021 and Mar 11, 2021
+# https://github.com/torvalds/linux/commits/master/drivers/usb/host/xhci-ring.c
+# Patch900: 0001-Revert-usb-xhci-changes-that-caused-issues-with-usb-.patch
+
 # empty final patch to facilitate testing of kernel patches
 Patch999999: linux-kernel-test.patch
 
@@ -1351,6 +1361,8 @@ cp -a %{SOURCE1} .
 ApplyOptionalPatch patch-%{rpmversion}-redhat.patch
 %endif
 
+# ApplyOptionalPatch 0001-Revert-usb-xhci-changes-that-caused-issues-with-usb-.patch
+# 
 ApplyOptionalPatch linux-kernel-test.patch
 
 # END OF PATCH APPLICATIONS
