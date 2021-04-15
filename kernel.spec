@@ -118,7 +118,7 @@ Summary: The Linux kernel
 %endif
 
 # define buildid .local
-
+%define buildid .jb
 
 %if 0%{?fedora}
 %define primary_target fedora
@@ -133,13 +133,17 @@ Summary: The Linux kernel
 %define patchversion 5.18
 %define pkgrelease 0.rc5.20220504git107c948d1d3e61d.42
 
+%define npkgrelease %{pkgrelease}0
+
 # This is needed to do merge window version magic
 %define patchlevel 18
 
 # allow pkg_release to have configurable %%{?dist} tag
 %define specrelease 0.rc5.20220504git107c948d1d3e61d.42%{?buildid}%{?dist}
 
-%define pkg_release %{specrelease}
+%define nspecrelease %{npkgrelease}%{?buildid}%{?dist}
+
+%define pkg_release %{nspecrelease}
 
 # libexec dir is not used by the linker, so the shared object there
 # should not be exported to RPM provides
