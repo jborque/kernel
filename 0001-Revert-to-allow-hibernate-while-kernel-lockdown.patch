@@ -1,0 +1,32 @@
+From 861bdca3b452102fb7712b065f31005f8630864f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jer=C3=B3nimo=20Borque?= <jeronimo@borque.com.ar>
+Date: Tue, 7 Sep 2021 22:06:57 -0300
+Subject: [PATCH] Revert to allow hibernate while kernel lockdown
+
+---
+ kernel/power/hibernate.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
+index 559acef3fd..0050be4826 100644
+--- a/kernel/power/hibernate.c
++++ b/kernel/power/hibernate.c
+@@ -30,7 +30,6 @@
+ #include <linux/ctype.h>
+ #include <linux/genhd.h>
+ #include <linux/ktime.h>
+-#include <linux/security.h>
+ #include <linux/secretmem.h>
+ #include <trace/events/power.h>
+ 
+@@ -83,7 +82,6 @@ void hibernate_release(void)
+ bool hibernation_available(void)
+ {
+ 	return nohibernate == 0 &&
+-		!security_locked_down(LOCKDOWN_HIBERNATION) &&
+ 		!secretmem_active();
+ }
+ 
+-- 
+2.31.1
+

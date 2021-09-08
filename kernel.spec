@@ -847,6 +847,8 @@ Source4002: gating.yaml
 Patch1: patch-%{patchversion}-redhat.patch
 %endif
 
+Patch901: 0001-Revert-to-allow-hibernate-while-kernel-lockdown.patch
+
 # empty final patch to facilitate testing of kernel patches
 Patch999999: linux-kernel-test.patch
 
@@ -1384,6 +1386,8 @@ cp -a %{SOURCE1} .
 
 ApplyOptionalPatch patch-%{patchversion}-redhat.patch
 %endif
+
+ApplyOptionalPatch 0001-Revert-to-allow-hibernate-while-kernel-lockdown.patch
 
 ApplyOptionalPatch linux-kernel-test.patch
 
