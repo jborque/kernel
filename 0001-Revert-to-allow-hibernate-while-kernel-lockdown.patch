@@ -11,15 +11,14 @@ diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
 index 559acef3fd..0050be4826 100644
 --- a/kernel/power/hibernate.c
 +++ b/kernel/power/hibernate.c
-@@ -30,7 +30,6 @@
+@@ -30,6 +30,5 @@
  #include <linux/ctype.h>
- #include <linux/genhd.h>
  #include <linux/ktime.h>
 -#include <linux/security.h>
  #include <linux/secretmem.h>
  #include <trace/events/power.h>
  
-@@ -83,7 +82,6 @@ void hibernate_release(void)
+@@ -82,7 +81,6 @@ void hibernate_release(void)
  bool hibernation_available(void)
  {
  	return nohibernate == 0 &&
