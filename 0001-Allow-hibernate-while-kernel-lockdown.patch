@@ -1,0 +1,32 @@
+From 7232a2aa6974a2197170c3099f32cd7602ea1600 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jer=C3=B3nimo=20Borque?= <jeronimo@borque.com.ar>
+Date: Wed, 1 Jun 2022 00:55:59 -0300
+Subject: [PATCH] Allow hibernate while kernel lockdown
+
+---
+ kernel/power/hibernate.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
+index 20a66bf9f..b317495d3 100644
+--- a/kernel/power/hibernate.c
++++ b/kernel/power/hibernate.c
+@@ -29,7 +29,6 @@
+ #include <linux/syscore_ops.h>
+ #include <linux/ctype.h>
+ #include <linux/ktime.h>
+-#include <linux/security.h>
+ #include <linux/secretmem.h>
+ #include <trace/events/power.h>
+ 
+@@ -82,7 +81,6 @@ void hibernate_release(void)
+ bool hibernation_available(void)
+ {
+ 	return nohibernate == 0 &&
+-		!security_locked_down(LOCKDOWN_HIBERNATION) &&
+ 		!secretmem_active() && !cxl_mem_active();
+ }
+ 
+-- 
+2.35.3
+
