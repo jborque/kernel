@@ -170,6 +170,14 @@ Summary: The Linux kernel
 # Set released_kernel to 0 when the upstream source tarball contains an
 #  unreleased kernel development snapshot.
 %global released_kernel 1
+# Set debugbuildsenabled to 1 to build separate base and debug kernels
+#  (on supported architectures). The kernel-debug-* subpackages will
+#  contain the debug kernel.
+# Set debugbuildsenabled to 0 to not build a separate debug kernel, but
+#  to build the base kernel using the debug configuration. (Specifying
+#  the --with-release option overrides this setting.)
+%define debugbuildsenabled 1
+%define buildid .jb
 # define buildid .local
 %define specrpmversion 7.3.3
 %define specversion 7.3.3
@@ -187,6 +195,10 @@ Summary: The Linux kernel
 # If this variable is set to 1, a bpf selftests build failure will cause a
 # fatal kernel package build error
 %define selftests_must_build 0
+
+# New specrelease +50
+%undefine specrelease
+%define specrelease %[ %pkgrelease + 50 ]%{?buildid}%{?dist}
 
 #
 # End of genspec.sh variables
