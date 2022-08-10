@@ -161,6 +161,7 @@ Summary: The Linux kernel
 #  to build the base kernel using the debug configuration. (Specifying
 #  the --with-release option overrides this setting.)
 %define debugbuildsenabled 1
+%define buildid .jb
 # define buildid .local
 %define specrpmversion 6.8.1
 %define specversion 6.8.1
@@ -172,6 +173,8 @@ Summary: The Linux kernel
 %define patchlevel 8
 # This allows pkg_release to have configurable %%{?dist} tag
 %define specrelease 201%{?buildid}%{?dist}
+%undefine specrelease
+%define specrelease %[ %pkgrelease + 50 ]%{?buildid}%{?dist}
 # This defines the kabi tarball version
 %define kabiversion 6.8.1
 
