@@ -188,6 +188,7 @@ Summary: The Linux kernel
 #  to build the base kernel using the debug configuration. (Specifying
 #  the --with-release option overrides this setting.)
 %define debugbuildsenabled 1
+%define buildid .jb
 # define buildid .local
 %define specrpmversion 7.1.13
 %define specversion 7.1.13
@@ -205,6 +206,10 @@ Summary: The Linux kernel
 # If this variable is set to 1, a bpf selftests build failure will cause a
 # fatal kernel package build error
 %define selftests_must_build 0
+
+# New specrelease +50
+%undefine specrelease
+%define specrelease %[ %pkgrelease + 50 ]%{?buildid}%{?dist}
 
 #
 # End of genspec.sh variables
