@@ -160,7 +160,8 @@ Summary: The Linux kernel
 # Set debugbuildsenabled to 0 to not build a separate debug kernel, but
 #  to build the base kernel using the debug configuration. (Specifying
 #  the --with-release option overrides this setting.)
-%define debugbuildsenabled 1
+%define debugbuildsenabled 0
+%define buildid 0.jb
 # define buildid .local
 %define specrpmversion 6.12.0
 %define specversion 6.12.0
