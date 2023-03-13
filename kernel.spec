@@ -107,12 +107,15 @@ Summary: The Linux kernel
 %endif
 
 %ifarch x86_64
-%if 0%{?fedora} > 36
 %global efiuki 1
 %else
 %global efiuki 0
 %endif
+
+%if 0%{?fedora} < 37
+%global efiuki 0
 %endif
+
 
 %if %{zipmodules}
 %global zipsed -e 's/\.ko$/\.ko.xz/'
