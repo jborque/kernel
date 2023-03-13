@@ -112,6 +112,7 @@ Summary: The Linux kernel
 %else
 %global efiuki 0
 %endif
+%endif
 
 %if %{zipmodules}
 %global zipsed -e 's/\.ko$/\.ko.xz/'
