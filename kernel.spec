@@ -148,17 +148,17 @@ Summary: The Linux kernel
 #  the --with-release option overrides this setting.)
 %define debugbuildsenabled 1
 # define buildid .local
-%define specversion 6.2.11
+%define specversion 6.2.12
 %define patchversion 6.2
 %define pkgrelease 100
 %define kversion 6
-%define tarfile_release 6.2.11
+%define tarfile_release 6.2.12
 # This is needed to do merge window version magic
 %define patchlevel 2
 # This allows pkg_release to have configurable %%{?dist} tag
 %define specrelease 100%{?buildid}%{?dist}
 # This defines the kabi tarball version
-%define kabiversion 6.2.11
+%define kabiversion 6.2.12
 
 # If this variable is set to 1, a bpf selftests build failure will cause a
 # fatal kernel package build error
@@ -3346,6 +3346,11 @@ fi
 #
 #
 %changelog
+* Thu Apr 20 2023 Augusto Caringi <acaringi@redhat.com> [6.2.12-0]
+- Add bugs fixed by 6.2.12 (Justin M. Forbes)
+- Use RHJOBS for create-tarball (Don Zickus)
+- Linux v6.2.12
+
 * Thu Apr 13 2023 Augusto Caringi <acaringi@redhat.com> [6.2.11-0]
 - Linux v6.2.11
 
