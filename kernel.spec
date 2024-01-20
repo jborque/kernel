@@ -160,18 +160,18 @@ Summary: The Linux kernel
 #  the --with-release option overrides this setting.)
 %define debugbuildsenabled 1
 # define buildid .local
-%define specrpmversion 6.7.0
-%define specversion 6.7.0
+%define specrpmversion 6.7.1
+%define specversion 6.7.1
 %define patchversion 6.7
 %define pkgrelease 200
 %define kversion 6
-%define tarfile_release 6.7
+%define tarfile_release 6.7.1
 # This is needed to do merge window version magic
 %define patchlevel 7
 # This allows pkg_release to have configurable %%{?dist} tag
 %define specrelease 200%{?buildid}%{?dist}
 # This defines the kabi tarball version
-%define kabiversion 6.7.0
+%define kabiversion 6.7.1
 
 # If this variable is set to 1, a bpf selftests build failure will cause a
 # fatal kernel package build error
@@ -1542,7 +1542,7 @@ Provides: installonlypkg(kernel)\
 Provides: kernel-%{?1:%{1}-}uname-r = %{KVERREL}%{uname_suffix %{?1:+%{1}}}\
 Requires: kernel%{?1:-%{1}}-modules-core-uname-r = %{KVERREL}%{uname_suffix %{?1:+%{1}}}\
 Requires(pre): %{kernel_prereq}\
-Requires(pre): systemd >= 254-1\
+Requires(pre): systemd\
 %endif\
 %endif\
 %if %{with_gcov}\
@@ -3833,7 +3833,8 @@ fi\
 #
 #
 %changelog
-* Fri Jan 19 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.7.0-200]
+* Sat Jan 20 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.7.1-0]
+- Fix up requires for UKI (Justin M. Forbes)
 - Fix up libperf install (Justin M. Forbes)
 - Drop soname for libcpupower.so since we reverted the bump (Justin M. Forbes)
 - Turn on CONFIG_TCP_AO for Fedora (Justin M. Forbes)
@@ -3873,6 +3874,7 @@ fi\
 - uki-virt: add virtiofs dracut module (Gerd Hoffmann)
 - common: disable the FB device creation (Peter Robinson)
 - s390x: There's no FB on Z-series (Peter Robinson)
+- Linux v6.7.1
 
 * Mon Jan 08 2024 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.7.0-68]
 - fedora: aarch64: enable SM_VIDEOCC_8350 (Peter Robinson)

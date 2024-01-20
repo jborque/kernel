@@ -39,7 +39,7 @@
  38 files changed, 674 insertions(+), 176 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index c6f549f6a4ae..9d17dd2c3636 100644
+index 186da2386a06..04c292b5f718 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -22,6 +22,18 @@ $(if $(filter __%, $(MAKECMDGOALS)), \
@@ -980,7 +980,7 @@ index 6b6aa3c36744..0ce08e9a0a3d 100644
  	arg->desc_id = ev->desc_id;
  	arg->status = ev->status;
 diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index ea476252280a..d81cc740aad8 100644
+index d55a3ffae4b8..a8c1d69567cd 100644
 --- a/drivers/pci/quirks.c
 +++ b/drivers/pci/quirks.c
 @@ -4410,6 +4410,30 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_BROADCOM, 0x9000,
