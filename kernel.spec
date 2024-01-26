@@ -160,18 +160,18 @@ Summary: The Linux kernel
 #  the --with-release option overrides this setting.)
 %define debugbuildsenabled 1
 # define buildid .local
-%define specrpmversion 6.7.1
-%define specversion 6.7.1
+%define specrpmversion 6.7.2
+%define specversion 6.7.2
 %define patchversion 6.7
 %define pkgrelease 200
 %define kversion 6
-%define tarfile_release 6.7.1
+%define tarfile_release 6.7.2
 # This is needed to do merge window version magic
 %define patchlevel 7
 # This allows pkg_release to have configurable %%{?dist} tag
 %define specrelease 200%{?buildid}%{?dist}
 # This defines the kabi tarball version
-%define kabiversion 6.7.1
+%define kabiversion 6.7.2
 
 # If this variable is set to 1, a bpf selftests build failure will cause a
 # fatal kernel package build error
@@ -1924,6 +1924,7 @@ update_target=%{primary_target}
 if [ "%{primary_target}" == "rhel" ]; then
 : # no-op to avoid empty if-fi error
 %if 0%{?centos}
+  update_scripts $update_target
   echo "Updating scripts/sources to centos version"
   update_target=centos
 %endif
@@ -3829,6 +3830,11 @@ fi\
 #
 #
 %changelog
+* Fri Jan 26 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.7.2-0]
+- redhat: spec: Fix update_scripts run for CentOS builds (Neal Gompa)
+- BPF Tool versioning seems incompatible with stable Fedroa (Justin M. Forbes)
+- Linux v6.7.2
+
 * Sat Jan 20 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.7.1-0]
 - Fix up requires for UKI (Justin M. Forbes)
 - Fix up libperf install (Justin M. Forbes)
