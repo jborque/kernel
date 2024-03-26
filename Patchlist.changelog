@@ -1,3 +1,9 @@
+"https://gitlab.com/cki-project/kernel-ark/-/commit"/c7fb6711c80096b45afa7c974abfc5bee31eb1a3
+ c7fb6711c80096b45afa7c974abfc5bee31eb1a3 Revert "cpupower: Bump soname version"
+
+"https://gitlab.com/cki-project/kernel-ark/-/commit"/fccd579ad79c032dd402f674fd94e80ad52519f6
+ fccd579ad79c032dd402f674fd94e80ad52519f6 xfs: fix SEEK_HOLE/DATA for regions with active COW extents
+
 "https://gitlab.com/cki-project/kernel-ark/-/commit"/43f3e284f6c98c0cb6133ac90e0b4bba02975053
  43f3e284f6c98c0cb6133ac90e0b4bba02975053 drivers/firmware: skip simpledrm if nvidia-drm.modeset=1 is set
 
