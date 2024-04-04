@@ -1,5 +1,5 @@
-"https://gitlab.com/cki-project/kernel-ark/-/commit"/d7a30164fdb15f8df90d992eb6bb71d6a16802df
- d7a30164fdb15f8df90d992eb6bb71d6a16802df Revert "cpupower: Bump soname version"
+"https://gitlab.com/cki-project/kernel-ark/-/commit"/83dae02150c829b67e0f34ac7b2988030be53b0c
+ 83dae02150c829b67e0f34ac7b2988030be53b0c Revert "cpupower: Bump soname version"
 
 "https://gitlab.com/cki-project/kernel-ark/-/commit"/9ba38d5f5c49d3f4a9e429d05aa73cb397db5071
  9ba38d5f5c49d3f4a9e429d05aa73cb397db5071 Revert "Bluetooth: hci_qca: Set BDA quirk bit if fwnode exists in DT"
