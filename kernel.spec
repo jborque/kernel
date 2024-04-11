@@ -163,13 +163,13 @@ Summary: The Linux kernel
 %define specrpmversion 6.8.5
 %define specversion 6.8.5
 %define patchversion 6.8
-%define pkgrelease 200
+%define pkgrelease 201
 %define kversion 6
 %define tarfile_release 6.8.5
 # This is needed to do merge window version magic
 %define patchlevel 8
 # This allows pkg_release to have configurable %%{?dist} tag
-%define specrelease 200%{?buildid}%{?dist}
+%define specrelease 201%{?buildid}%{?dist}
 # This defines the kabi tarball version
 %define kabiversion 6.8.5
 
@@ -3959,9 +3959,12 @@ fi\
 #
 #
 %changelog
-* Wed Apr 10 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.8.5-200]
+* Thu Apr 11 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.8.5-201]
 - Revert "cpupower: Bump soname version" (Justin M. Forbes)
 - Drop soname for libcpupower.so since we reverted the bump (Justin M. Forbes)
+- nouveau: fix devinit paths to only handle display on GSP. (Dave Airlie)
+- Add bluetooth bug to Bugsfixed for 6.8.6 (Justin M. Forbes)
+- Bluetooth: l2cap: Don't double set the HCI_CONN_MGMT_CONNECTED bit (Archie Pusaka)
 
 * Wed Apr 10 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.8.5-0]
 - Set configs for SPECTRE_BHI (Justin M. Forbes)
