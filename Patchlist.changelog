@@ -1,5 +1,5 @@
-"https://gitlab.com/cki-project/kernel-ark/-/commit"/30b3ab2e16f557f0636a8559ce102d5920e1a213
- 30b3ab2e16f557f0636a8559ce102d5920e1a213 Revert "cpupower: Bump soname version"
+"https://gitlab.com/cki-project/kernel-ark/-/commit"/eb0ff3b61faf398f1e323789e4815bfdd61f714b
+ eb0ff3b61faf398f1e323789e4815bfdd61f714b Revert "cpupower: Bump soname version"
 
 "https://gitlab.com/cki-project/kernel-ark/-/commit"/bc8a66a7f9a128ef3c0c52c8ffbb1edfdc965a0c
  bc8a66a7f9a128ef3c0c52c8ffbb1edfdc965a0c Reapply "drm/qxl: simplify qxl_fence_wait"
