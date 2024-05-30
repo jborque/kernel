@@ -72,7 +72,7 @@ index 000000000000..733a26bd887a
 +
 +endmenu
 diff --git a/Makefile b/Makefile
-index 8302496ee7a5..73844ab02b6b 100644
+index 8def0819eb55..7a6d983dbc3d 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -22,6 +22,18 @@ $(if $(filter __%, $(MAKECMDGOALS)), \
@@ -1378,7 +1378,7 @@ index ef9ea295f9e0..0103334e8f32 100644
  	if (data->f01_container->dev.driver) {
  		/* Driver already bound, so enable ATTN now. */
 diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index a95a483def2d..e11ceb8b6df0 100644
+index 659a77f7bb83..e8dc1fd50e21 100644
 --- a/drivers/iommu/iommu.c
 +++ b/drivers/iommu/iommu.c
 @@ -8,6 +8,7 @@
