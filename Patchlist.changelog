@@ -1,5 +1,5 @@
-https://gitlab.com/cki-project/kernel-ark/-/commit/b61a8b374205de5c1144f8071d29370f4766f048
- b61a8b374205de5c1144f8071d29370f4766f048 Revert "cpupower: Bump soname version"
+https://gitlab.com/cki-project/kernel-ark/-/commit/2f7385bafd1b161febf040515b257e106f4bc6b7
+ 2f7385bafd1b161febf040515b257e106f4bc6b7 Revert "cpupower: Bump soname version"
 
 https://gitlab.com/cki-project/kernel-ark/-/commit/a058bf42a79af81598f7404ad550ff677eb2be4d
  a058bf42a79af81598f7404ad550ff677eb2be4d lsm: update security_lock_kernel_down
