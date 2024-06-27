@@ -160,18 +160,18 @@ Summary: The Linux kernel
 #  the --with-release option overrides this setting.)
 %define debugbuildsenabled 1
 # define buildid .local
-%define specrpmversion 6.9.6
-%define specversion 6.9.6
+%define specrpmversion 6.9.7
+%define specversion 6.9.7
 %define patchversion 6.9
 %define pkgrelease 100
 %define kversion 6
-%define tarfile_release 6.9.6
+%define tarfile_release 6.9.7
 # This is needed to do merge window version magic
 %define patchlevel 9
 # This allows pkg_release to have configurable %%{?dist} tag
 %define specrelease 100%{?buildid}%{?dist}
 # This defines the kabi tarball version
-%define kabiversion 6.9.6
+%define kabiversion 6.9.7
 
 # If this variable is set to 1, a bpf selftests build failure will cause a
 # fatal kernel package build error
@@ -3949,10 +3949,14 @@ fi\
 #
 #
 %changelog
-* Fri Jun 21 2024 Augusto Caringi <acaringi@redhat.com> [6.9.6-100]
+* Thu Jun 27 2024 Augusto Caringi <acaringi@redhat.com> [6.9.7-100]
 - Turn off libbpf dynamic for perf on F39 (Justin M. Forbes)
 - Revert "cpupower: Bump soname version" (Justin M. Forbes)
 - Drop soname for libcpupower.so since we reverted the bump (Justin M. Forbes)
+
+* Thu Jun 27 2024 Augusto Caringi <acaringi@redhat.com> [6.9.7-0]
+- ACPI: scan: Ignore camera graph port nodes on all Dell Tiger, Alder and Raptor Lake models (Hans de Goede)
+- Linux v6.9.7
 
 * Fri Jun 21 2024 Augusto Caringi <acaringi@redhat.com> [6.9.6-0]
 - Linux v6.9.6
