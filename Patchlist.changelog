@@ -1,5 +1,5 @@
-https://gitlab.com/cki-project/kernel-ark/-/commit/18e3a14881c075713794549d387a4331e62424cd
- 18e3a14881c075713794549d387a4331e62424cd Revert "cpupower: Bump soname version"
+https://gitlab.com/cki-project/kernel-ark/-/commit/6e2c4c790de39f6c70898192e56e07b52ffbc060
+ 6e2c4c790de39f6c70898192e56e07b52ffbc060 Revert "cpupower: Bump soname version"
 
 https://gitlab.com/cki-project/kernel-ark/-/commit/982eb4ceebb7be3979ef62dbd5d4c8a514180ae1
  982eb4ceebb7be3979ef62dbd5d4c8a514180ae1 ACPI: scan: Ignore camera graph port nodes on all Dell Tiger, Alder and Raptor Lake models
