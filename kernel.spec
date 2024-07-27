@@ -160,18 +160,18 @@ Summary: The Linux kernel
 #  the --with-release option overrides this setting.)
 %define debugbuildsenabled 1
 # define buildid .local
-%define specrpmversion 6.10.1
-%define specversion 6.10.1
+%define specrpmversion 6.10.2
+%define specversion 6.10.2
 %define patchversion 6.10
 %define pkgrelease 200
 %define kversion 6
-%define tarfile_release 6.10.1
+%define tarfile_release 6.10.2
 # This is needed to do merge window version magic
 %define patchlevel 10
 # This allows pkg_release to have configurable %%{?dist} tag
 %define specrelease 200%{?buildid}%{?dist}
 # This defines the kabi tarball version
-%define kabiversion 6.10.1
+%define kabiversion 6.10.2
 
 # If this variable is set to 1, a bpf selftests build failure will cause a
 # fatal kernel package build error
@@ -4043,6 +4043,9 @@ fi\
 #
 #
 %changelog
+* Sat Jul 27 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.10.2-0]
+- Linux v6.10.2
+
 * Wed Jul 24 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.10.1-0]
 - Initial set up for stable Fedora branch (Justin M. Forbes)
 - Reset RHEL_RELEASE for the 6.11 cycle (Justin M. Forbes)
