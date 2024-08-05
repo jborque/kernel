@@ -1,10 +1,11 @@
- Kconfig                                            |   2 +
- Kconfig.redhat                                     |  17 +++
  Makefile                                           |  12 ++
+ arch/arm/Kconfig                                   |   4 +-
+ arch/arm64/Kconfig                                 |   2 +-
  arch/s390/include/asm/ipl.h                        |   1 +
  arch/s390/kernel/ipl.c                             |   5 +
  arch/s390/kernel/setup.c                           |   4 +
  arch/x86/kernel/setup.c                            |  22 ++-
+ certs/extract-cert.c                               |  25 +---
  crypto/drbg.c                                      |  18 ++-
  crypto/rng.c                                       | 149 ++++++++++++++++++---
  drivers/acpi/apei/hest.c                           |   8 ++
@@ -21,6 +22,7 @@
  drivers/hwtracing/coresight/coresight-etm4x-core.c |  19 +++
  drivers/input/rmi4/rmi_driver.c                    | 124 ++++++++++-------
  drivers/iommu/iommu.c                              |  22 +++
+ drivers/media/pci/intel/ipu-bridge.c               |  40 ++++--
  drivers/pci/quirks.c                               |  24 ++++
  drivers/scsi/sd.c                                  |  10 ++
  drivers/usb/core/hub.c                             |   7 +
@@ -31,49 +33,19 @@
  include/linux/rmi.h                                |   1 +
  include/linux/security.h                           |   5 +
  kernel/module/signing.c                            |   9 +-
+ net/bluetooth/hci_core.c                           |   7 -
+ net/bluetooth/hci_event.c                          |   5 +-
+ scripts/sign-file.c                                |  29 +---
  scripts/tags.sh                                    |   2 +
  security/integrity/platform_certs/load_uefi.c      |   6 +-
  security/lockdown/Kconfig                          |  13 ++
  security/lockdown/lockdown.c                       |   1 +
  security/security.c                                |  12 ++
  tools/power/cpupower/Makefile                      |   2 +-
- 39 files changed, 763 insertions(+), 193 deletions(-)
+ 44 files changed, 783 insertions(+), 266 deletions(-)
 
-diff --git a/Kconfig b/Kconfig
-index 745bc773f567..f57ff40109d7 100644
---- a/Kconfig
-+++ b/Kconfig
-@@ -30,3 +30,5 @@ source "lib/Kconfig"
- source "lib/Kconfig.debug"
- 
- source "Documentation/Kconfig"
-+
-+source "Kconfig.redhat"
-diff --git a/Kconfig.redhat b/Kconfig.redhat
-new file mode 100644
-index 000000000000..733a26bd887a
---- /dev/null
-+++ b/Kconfig.redhat
-@@ -0,0 +1,17 @@
-+# SPDX-License-Identifier: GPL-2.0-only
-+#
-+# Red Hat specific options
-+#
-+
-+menu "Red Hat options"
-+
-+config RH_DISABLE_DEPRECATED
-+	bool "Remove support for deprecated features"
-+	help
-+	  Red Hat may choose to deprecate certain features in its kernels.
-+	  Enable this option to remove support for hardware that is no
-+	  longer supported.
-+
-+	  Unless you want a restricted kernel, say N here.
-+
-+endmenu
 diff --git a/Makefile b/Makefile
-index d9243ad053f9..bc887a5bce4c 100644
+index c0af6d8aeb05..33ffe9e302df 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -22,6 +22,18 @@ $(if $(filter __%, $(MAKECMDGOALS)), \
@@ -95,6 +67,35 @@ index d9243ad053f9..bc887a5bce4c 100644
  # We are using a recursive build, so we need to do a little thinking
  # to get the ordering right.
  #
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index ee5115252aac..7f3796df8404 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1224,9 +1224,9 @@ config HIGHMEM
+ 	  If unsure, say n.
+ 
+ config HIGHPTE
+-	bool "Allocate 2nd-level pagetables from highmem" if EXPERT
++	bool "Allocate 2nd-level pagetables from highmem"
+ 	depends on HIGHMEM
+-	default y
++	default n
+ 	help
+ 	  The VM uses one page of physical memory for each page table.
+ 	  For systems with a lot of processes, this can use a lot of
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 5d91259ee7b5..3a9f1962da72 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -1368,7 +1368,7 @@ endchoice
+ 
+ config ARM64_FORCE_52BIT
+ 	bool "Force 52-bit virtual addresses for userspace"
+-	depends on ARM64_VA_BITS_52 && EXPERT
++	depends on ARM64_VA_BITS_52
+ 	help
+ 	  For systems with 52-bit userspace VAs enabled, the kernel will attempt
+ 	  to maintain compatibility with older software by providing 48-bit VAs
 diff --git a/arch/s390/include/asm/ipl.h b/arch/s390/include/asm/ipl.h
 index b0d00032479d..afb9544fb007 100644
 --- a/arch/s390/include/asm/ipl.h
@@ -108,10 +109,10 @@ index b0d00032479d..afb9544fb007 100644
  /*
   * DIAG 308 support
 diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
-index 469e8d3fbfbf..3ce742cd61c3 100644
+index 3a7d6e172211..8163a2173247 100644
 --- a/arch/s390/kernel/ipl.c
 +++ b/arch/s390/kernel/ipl.c
-@@ -2519,3 +2519,8 @@ int ipl_report_free(struct ipl_report *report)
+@@ -2479,3 +2479,8 @@ int ipl_report_free(struct ipl_report *report)
  }
  
  #endif
@@ -121,7 +122,7 @@ index 469e8d3fbfbf..3ce742cd61c3 100644
 +	return !!ipl_secure_flag;
 +}
 diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 7ecd27c62d56..cad68dfba646 100644
+index 610e6f794511..4fc7aca3f572 100644
 --- a/arch/s390/kernel/setup.c
 +++ b/arch/s390/kernel/setup.c
 @@ -49,6 +49,7 @@
@@ -143,10 +144,10 @@ index 7ecd27c62d56..cad68dfba646 100644
  	/* boot_command_line has been already set up in early.c */
  	*cmdline_p = boot_command_line;
 diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-index e125e059e2c4..9cfd28e580e0 100644
+index 05c5aa951da7..da521c6f1cf2 100644
 --- a/arch/x86/kernel/setup.c
 +++ b/arch/x86/kernel/setup.c
-@@ -20,6 +20,7 @@
+@@ -21,6 +21,7 @@
  #include <linux/root_dev.h>
  #include <linux/hugetlb.h>
  #include <linux/tboot.h>
@@ -154,7 +155,7 @@ index e125e059e2c4..9cfd28e580e0 100644
  #include <linux/usb/xhci-dbgp.h>
  #include <linux/static_call.h>
  #include <linux/swiotlb.h>
-@@ -901,6 +902,13 @@ void __init setup_arch(char **cmdline_p)
+@@ -902,6 +903,13 @@ void __init setup_arch(char **cmdline_p)
  	if (efi_enabled(EFI_BOOT))
  		efi_init();
  
@@ -168,7 +169,7 @@ index e125e059e2c4..9cfd28e580e0 100644
  	reserve_ibft_region();
  	x86_init.resources.dmi_setup();
  
-@@ -1063,19 +1071,7 @@ void __init setup_arch(char **cmdline_p)
+@@ -1064,19 +1072,7 @@ void __init setup_arch(char **cmdline_p)
  	/* Allocate bigger log buffer */
  	setup_log_buf(1);
  
@@ -189,6 +190,49 @@ index e125e059e2c4..9cfd28e580e0 100644
  
  	reserve_initrd();
  
+diff --git a/certs/extract-cert.c b/certs/extract-cert.c
+index 70e9ec89d87d..f5fb74916cee 100644
+--- a/certs/extract-cert.c
++++ b/certs/extract-cert.c
+@@ -21,7 +21,6 @@
+ #include <openssl/bio.h>
+ #include <openssl/pem.h>
+ #include <openssl/err.h>
+-#include <openssl/engine.h>
+ 
+ /*
+  * OpenSSL 3.0 deprecates the OpenSSL's ENGINE API.
+@@ -122,28 +121,8 @@ int main(int argc, char **argv)
+ 		fclose(f);
+ 		exit(0);
+ 	} else if (!strncmp(cert_src, "pkcs11:", 7)) {
+-		ENGINE *e;
+-		struct {
+-			const char *cert_id;
+-			X509 *cert;
+-		} parms;
+-
+-		parms.cert_id = cert_src;
+-		parms.cert = NULL;
+-
+-		ENGINE_load_builtin_engines();
+-		drain_openssl_errors();
+-		e = ENGINE_by_id("pkcs11");
+-		ERR(!e, "Load PKCS#11 ENGINE");
+-		if (ENGINE_init(e))
+-			drain_openssl_errors();
+-		else
+-			ERR(1, "ENGINE_init");
+-		if (key_pass)
+-			ERR(!ENGINE_ctrl_cmd_string(e, "PIN", key_pass, 0), "Set PKCS#11 PIN");
+-		ENGINE_ctrl_cmd(e, "LOAD_CERT_CTRL", 0, &parms, NULL, 1);
+-		ERR(!parms.cert, "Get X.509 from PKCS#11");
+-		write_cert(parms.cert);
++		fprintf(stderr, "Error: pkcs11 not implemented\n");
++		exit(1);
+ 	} else {
+ 		BIO *b;
+ 		X509 *x509;
 diff --git a/crypto/drbg.c b/crypto/drbg.c
 index 3addce90930c..730b03de596a 100644
 --- a/crypto/drbg.c
@@ -245,7 +289,7 @@ index 3addce90930c..730b03de596a 100644
  
  /*
 diff --git a/crypto/rng.c b/crypto/rng.c
-index 279dffdebf59..d24dd37205cd 100644
+index 9d8804e46422..5ccb0485ff4b 100644
 --- a/crypto/rng.c
 +++ b/crypto/rng.c
 @@ -12,10 +12,13 @@
@@ -273,7 +317,7 @@ index 279dffdebf59..d24dd37205cd 100644
  struct crypto_rng *crypto_default_rng;
  EXPORT_SYMBOL_GPL(crypto_default_rng);
  static int crypto_default_rng_refcnt;
-@@ -136,31 +141,37 @@ struct crypto_rng *crypto_alloc_rng(const char *alg_name, u32 type, u32 mask)
+@@ -106,31 +111,37 @@ struct crypto_rng *crypto_alloc_rng(const char *alg_name, u32 type, u32 mask)
  }
  EXPORT_SYMBOL_GPL(crypto_alloc_rng);
  
@@ -320,7 +364,7 @@ index 279dffdebf59..d24dd37205cd 100644
  	mutex_unlock(&crypto_default_rng_lock);
  
  	return err;
-@@ -176,24 +187,33 @@ void crypto_put_default_rng(void)
+@@ -146,24 +157,33 @@ void crypto_put_default_rng(void)
  EXPORT_SYMBOL_GPL(crypto_put_default_rng);
  
  #if defined(CONFIG_CRYPTO_RNG) || defined(CONFIG_CRYPTO_RNG_MODULE)
@@ -360,7 +404,7 @@ index 279dffdebf59..d24dd37205cd 100644
  EXPORT_SYMBOL_GPL(crypto_del_default_rng);
  #endif
  
-@@ -251,5 +271,102 @@ void crypto_unregister_rngs(struct rng_alg *algs, int count)
+@@ -217,5 +237,102 @@ void crypto_unregister_rngs(struct rng_alg *algs, int count)
  }
  EXPORT_SYMBOL_GPL(crypto_unregister_rngs);
  
@@ -526,10 +570,10 @@ index 1687483ff319..390b67f19181 100644
  	return ctx.rc;
  }
 diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index d1464324de95..a3b2f99a2d78 100644
+index 503773707e01..2fead21fcb07 100644
 --- a/drivers/acpi/scan.c
 +++ b/drivers/acpi/scan.c
-@@ -1798,6 +1798,15 @@ static bool acpi_device_enumeration_by_parent(struct acpi_device *device)
+@@ -1793,6 +1793,15 @@ static bool acpi_device_enumeration_by_parent(struct acpi_device *device)
  	if (!acpi_match_device_ids(device, ignore_serial_bus_ids))
  		return false;
  
@@ -601,7 +645,7 @@ index bbf7029e224b..cf7faa970dd6 100644
  		dmi_decode_ipmi((const struct dmi_header *) dev->device_data);
  
 diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
-index b0eedc4595b3..a9024c1dd68a 100644
+index e12b531f5c2f..082707f8dff8 100644
 --- a/drivers/char/ipmi/ipmi_msghandler.c
 +++ b/drivers/char/ipmi/ipmi_msghandler.c
 @@ -35,6 +35,7 @@
@@ -612,7 +656,7 @@ index b0eedc4595b3..a9024c1dd68a 100644
  #include <linux/delay.h>
  
  #define IPMI_DRIVER_VERSION "39.2"
-@@ -5511,8 +5512,21 @@ static int __init ipmi_init_msghandler_mod(void)
+@@ -5510,8 +5511,21 @@ static int __init ipmi_init_msghandler_mod(void)
  {
  	int rv;
  
@@ -1136,7 +1180,7 @@ index d4af17fdba46..154f0403cbf4 100644
  	data->xport.ops = &hid_rmi_ops;
  
 diff --git a/drivers/hwtracing/coresight/coresight-etm4x-core.c b/drivers/hwtracing/coresight/coresight-etm4x-core.c
-index a0bdfabddbc6..cd824ceebd0f 100644
+index bf01f01964cf..703896981e8a 100644
 --- a/drivers/hwtracing/coresight/coresight-etm4x-core.c
 +++ b/drivers/hwtracing/coresight/coresight-etm4x-core.c
 @@ -10,6 +10,7 @@
@@ -1164,7 +1208,7 @@ index a0bdfabddbc6..cd824ceebd0f 100644
  MODULE_DEVICE_TABLE(amba, etm4_ids);
  
  static struct amba_driver etm4x_amba_driver = {
-@@ -2413,6 +2424,11 @@ static int __init etm4x_init(void)
+@@ -2412,6 +2423,11 @@ static int __init etm4x_init(void)
  {
  	int ret;
  
@@ -1176,7 +1220,7 @@ index a0bdfabddbc6..cd824ceebd0f 100644
  	ret = etm4_pm_setup();
  
  	/* etm4_pm_setup() does its own cleanup - exit on error */
-@@ -2439,6 +2455,9 @@ static int __init etm4x_init(void)
+@@ -2438,6 +2454,9 @@ static int __init etm4x_init(void)
  
  static void __exit etm4x_exit(void)
  {
@@ -1379,7 +1423,7 @@ index ef9ea295f9e0..0103334e8f32 100644
  	if (data->f01_container->dev.driver) {
  		/* Driver already bound, so enable ATTN now. */
 diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 659a77f7bb83..e8dc1fd50e21 100644
+index 9df7cc75c1bc..60d541ae39e8 100644
 --- a/drivers/iommu/iommu.c
 +++ b/drivers/iommu/iommu.c
 @@ -8,6 +8,7 @@
@@ -1390,7 +1434,7 @@ index 659a77f7bb83..e8dc1fd50e21 100644
  #include <linux/kernel.h>
  #include <linux/bits.h>
  #include <linux/bug.h>
-@@ -2913,6 +2914,27 @@ int iommu_dev_disable_feature(struct device *dev, enum iommu_dev_features feat)
+@@ -2916,6 +2917,27 @@ int iommu_dev_disable_feature(struct device *dev, enum iommu_dev_features feat)
  }
  EXPORT_SYMBOL_GPL(iommu_dev_disable_feature);
  
@@ -1418,8 +1462,70 @@ index 659a77f7bb83..e8dc1fd50e21 100644
  /**
   * iommu_setup_default_domain - Set the default_domain for the group
   * @group: Group to change
+diff --git a/drivers/media/pci/intel/ipu-bridge.c b/drivers/media/pci/intel/ipu-bridge.c
+index 61750cc98d70..a0e9a71580b5 100644
+--- a/drivers/media/pci/intel/ipu-bridge.c
++++ b/drivers/media/pci/intel/ipu-bridge.c
+@@ -43,28 +43,46 @@
+  * becoming apparent in the future.
+  *
+  * Do not add an entry for a sensor that is not actually supported.
++ *
++ * Please keep the list sorted by ACPI HID.
+  */
+ static const struct ipu_sensor_config ipu_supported_sensors[] = {
++	/* Himax HM11B1 */
++	IPU_SENSOR_CONFIG("HIMX11B1", 1, 384000000),
++	/* Himax HM2170 */
++	IPU_SENSOR_CONFIG("HIMX2170", 1, 384000000),
++	/* Himax HM2172 */
++	IPU_SENSOR_CONFIG("HIMX2172", 1, 384000000),
++	/* GalaxyCore GC0310 */
++	IPU_SENSOR_CONFIG("INT0310", 0),
+ 	/* Omnivision OV5693 */
+ 	IPU_SENSOR_CONFIG("INT33BE", 1, 419200000),
++	/* Omnivision OV2740 */
++	IPU_SENSOR_CONFIG("INT3474", 1, 180000000),
+ 	/* Omnivision OV8865 */
+ 	IPU_SENSOR_CONFIG("INT347A", 1, 360000000),
+ 	/* Omnivision OV7251 */
+ 	IPU_SENSOR_CONFIG("INT347E", 1, 319200000),
++	/* Hynix Hi-556 */
++	IPU_SENSOR_CONFIG("INT3537", 1, 437000000),
++	/* Omnivision OV01A10 / OV01A1S */
++	IPU_SENSOR_CONFIG("OVTI01A0", 1, 400000000),
++	IPU_SENSOR_CONFIG("OVTI01AS", 1, 400000000),
++	/* Omnivision OV02C10 */
++	IPU_SENSOR_CONFIG("OVTI02C1", 1, 400000000),
++	/* Omnivision OV02E10 */
++	IPU_SENSOR_CONFIG("OVTI02E1", 1, 360000000),
++	/* Omnivision OV08A10 */
++	IPU_SENSOR_CONFIG("OVTI08A1", 1, 500000000),
++	/* Omnivision OV08x40 */
++	IPU_SENSOR_CONFIG("OVTI08F4", 1, 400000000),
++	/* Omnivision OV13B10 */
++	IPU_SENSOR_CONFIG("OVTI13B1", 1, 560000000),
++	IPU_SENSOR_CONFIG("OVTIDB10", 1, 560000000),
+ 	/* Omnivision OV2680 */
+ 	IPU_SENSOR_CONFIG("OVTI2680", 1, 331200000),
+-	/* Omnivision ov8856 */
++	/* Omnivision OV8856 */
+ 	IPU_SENSOR_CONFIG("OVTI8856", 3, 180000000, 360000000, 720000000),
+-	/* Omnivision ov2740 */
+-	IPU_SENSOR_CONFIG("INT3474", 1, 180000000),
+-	/* Hynix hi556 */
+-	IPU_SENSOR_CONFIG("INT3537", 1, 437000000),
+-	/* Omnivision ov13b10 */
+-	IPU_SENSOR_CONFIG("OVTIDB10", 1, 560000000),
+-	/* GalaxyCore GC0310 */
+-	IPU_SENSOR_CONFIG("INT0310", 0),
+-	/* Omnivision ov01a10 */
+-	IPU_SENSOR_CONFIG("OVTI01A0", 1, 400000000),
+ };
+ 
+ static const struct ipu_property_names prop_names = {
 diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index eff7f5df08e2..b58145ce7775 100644
+index 568410e64ce6..6afbaee83950 100644
 --- a/drivers/pci/quirks.c
 +++ b/drivers/pci/quirks.c
 @@ -4433,6 +4433,30 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_BROADCOM, 0x9000,
@@ -1454,7 +1560,7 @@ index eff7f5df08e2..b58145ce7775 100644
   * Intersil/Techwell TW686[4589]-based video capture cards have an empty (zero)
   * class code.  Fix it.
 diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
-index a4638ea92571..aff13cdce015 100644
+index 1b7561abe05d..13f23905fb25 100644
 --- a/drivers/scsi/sd.c
 +++ b/drivers/scsi/sd.c
 @@ -120,6 +120,14 @@ static const char *sd_cache_types[] = {
@@ -1472,7 +1578,7 @@ index a4638ea92571..aff13cdce015 100644
  static void sd_set_flush_flag(struct scsi_disk *sdkp)
  {
  	bool wc = false, fua = false;
-@@ -4262,6 +4270,8 @@ static int __init init_sd(void)
+@@ -4252,6 +4260,8 @@ static int __init init_sd(void)
  		goto err_out_class;
  	}
  
@@ -1482,10 +1588,10 @@ index a4638ea92571..aff13cdce015 100644
  	if (err)
  		goto err_out_driver;
 diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index 008053039875..f948a5c96006 100644
+index 4b93c0bd1d4b..b98906237306 100644
 --- a/drivers/usb/core/hub.c
 +++ b/drivers/usb/core/hub.c
-@@ -5845,6 +5845,13 @@ static void hub_event(struct work_struct *work)
+@@ -5844,6 +5844,13 @@ static void hub_event(struct work_struct *work)
  			(u16) hub->change_bits[0],
  			(u16) hub->event_bits[0]);
  
@@ -1512,7 +1618,7 @@ index b164da5e129e..59021b8609a7 100644
  /*
   * Miscellaneous stuff.
 diff --git a/include/linux/efi.h b/include/linux/efi.h
-index d59b0947fba0..8b1e2e71d485 100644
+index 418e555459da..fdd941287ae1 100644
 --- a/include/linux/efi.h
 +++ b/include/linux/efi.h
 @@ -45,6 +45,8 @@ struct screen_info;
@@ -1565,7 +1671,7 @@ index d59b0947fba0..8b1e2e71d485 100644
  
  /*
   * Variable Attributes
-@@ -1134,13 +1149,6 @@ static inline bool efi_runtime_disabled(void) { return true; }
+@@ -1133,13 +1148,6 @@ static inline bool efi_runtime_disabled(void) { return true; }
  extern void efi_call_virt_check_flags(unsigned long flags, const void *caller);
  extern unsigned long efi_call_virt_save_flags(void);
  
@@ -1580,10 +1686,10 @@ index d59b0947fba0..8b1e2e71d485 100644
  enum efi_secureboot_mode efi_get_secureboot_mode(efi_get_variable_t *get_var)
  {
 diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index 7e539f6f8c67..3c3e56566457 100644
+index 855db460e08b..7a8c28cd7510 100644
 --- a/include/linux/lsm_hook_defs.h
 +++ b/include/linux/lsm_hook_defs.h
-@@ -436,6 +436,8 @@ LSM_HOOK(int, 0, bpf_token_capable, const struct bpf_token *token, int cap)
+@@ -438,6 +438,8 @@ LSM_HOOK(int, 0, bpf_token_capable, const struct bpf_token *token, int cap)
  #endif /* CONFIG_BPF_SYSCALL */
  
  LSM_HOOK(int, 0, locked_down, enum lockdown_reason what)
@@ -1633,7 +1739,7 @@ index ab7eea01ab42..fff7c5f737fc 100644
  
  int rmi_register_transport_device(struct rmi_transport_dev *xport);
 diff --git a/include/linux/security.h b/include/linux/security.h
-index 5122e3ad83b1..b5f0081bc894 100644
+index de3af33e6ff5..0a37270070e4 100644
 --- a/include/linux/security.h
 +++ b/include/linux/security.h
 @@ -507,6 +507,7 @@ int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
@@ -1678,6 +1784,95 @@ index a2ff4242e623..f0d2be1ee4f1 100644
  }
  
  int module_sig_check(struct load_info *info, int flags)
+diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
+index 7ae118a6d947..6ecb110bf46b 100644
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -120,13 +120,6 @@ void hci_discovery_set_state(struct hci_dev *hdev, int state)
+ 	case DISCOVERY_STARTING:
+ 		break;
+ 	case DISCOVERY_FINDING:
+-		/* If discovery was not started then it was initiated by the
+-		 * MGMT interface so no MGMT event shall be generated either
+-		 */
+-		if (old_state != DISCOVERY_STARTING) {
+-			hdev->discovery.state = old_state;
+-			return;
+-		}
+ 		mgmt_discovering(hdev, 1);
+ 		break;
+ 	case DISCOVERY_RESOLVING:
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index 4611a67d7dcc..a78f6d706cd4 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -1722,9 +1722,10 @@ static void le_set_scan_enable_complete(struct hci_dev *hdev, u8 enable)
+ 	switch (enable) {
+ 	case LE_SCAN_ENABLE:
+ 		hci_dev_set_flag(hdev, HCI_LE_SCAN);
+-		if (hdev->le_scan_type == LE_SCAN_ACTIVE)
++		if (hdev->le_scan_type == LE_SCAN_ACTIVE) {
+ 			clear_pending_adv_report(hdev);
+-		hci_discovery_set_state(hdev, DISCOVERY_FINDING);
++			hci_discovery_set_state(hdev, DISCOVERY_FINDING);
++		}
+ 		break;
+ 
+ 	case LE_SCAN_DISABLE:
+diff --git a/scripts/sign-file.c b/scripts/sign-file.c
+index 3edb156ae52c..0114ae1dbf7f 100644
+--- a/scripts/sign-file.c
++++ b/scripts/sign-file.c
+@@ -27,7 +27,6 @@
+ #include <openssl/evp.h>
+ #include <openssl/pem.h>
+ #include <openssl/err.h>
+-#include <openssl/engine.h>
+ 
+ /*
+  * OpenSSL 3.0 deprecates the OpenSSL's ENGINE API.
+@@ -99,16 +98,6 @@ static void display_openssl_errors(int l)
+ 	}
+ }
+ 
+-static void drain_openssl_errors(void)
+-{
+-	const char *file;
+-	int line;
+-
+-	if (ERR_peek_error() == 0)
+-		return;
+-	while (ERR_get_error_line(&file, &line)) {}
+-}
+-
+ #define ERR(cond, fmt, ...)				\
+ 	do {						\
+ 		bool __cond = (cond);			\
+@@ -144,22 +133,8 @@ static EVP_PKEY *read_private_key(const char *private_key_name)
+ 	EVP_PKEY *private_key;
+ 
+ 	if (!strncmp(private_key_name, "pkcs11:", 7)) {
+-		ENGINE *e;
+-
+-		ENGINE_load_builtin_engines();
+-		drain_openssl_errors();
+-		e = ENGINE_by_id("pkcs11");
+-		ERR(!e, "Load PKCS#11 ENGINE");
+-		if (ENGINE_init(e))
+-			drain_openssl_errors();
+-		else
+-			ERR(1, "ENGINE_init");
+-		if (key_pass)
+-			ERR(!ENGINE_ctrl_cmd_string(e, "PIN", key_pass, 0),
+-			    "Set PKCS#11 PIN");
+-		private_key = ENGINE_load_private_key(e, private_key_name,
+-						      NULL, NULL);
+-		ERR(!private_key, "%s", private_key_name);
++		fprintf(stderr, "Error: pkcs11 not implemented\n");
++		exit(1);
+ 	} else {
+ 		BIO *b;
+ 
 diff --git a/scripts/tags.sh b/scripts/tags.sh
 index 191e0461d6d5..e6f418b3e948 100755
 --- a/scripts/tags.sh
@@ -1752,10 +1947,10 @@ index cd84d8ea1dfb..e4c70a0312bc 100644
  
  const struct lsm_id lockdown_lsmid = {
 diff --git a/security/security.c b/security/security.c
-index 4fd3c839353e..d52cb3bb720d 100644
+index 8cee5b6c6e6d..489e25946bf9 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -5569,6 +5569,18 @@ int security_locked_down(enum lockdown_reason what)
+@@ -5596,6 +5596,18 @@ int security_locked_down(enum lockdown_reason what)
  }
  EXPORT_SYMBOL(security_locked_down);
  
