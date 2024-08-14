@@ -160,18 +160,18 @@ Summary: The Linux kernel
 #  the --with-release option overrides this setting.)
 %define debugbuildsenabled 1
 # define buildid .local
-%define specrpmversion 6.10.4
-%define specversion 6.10.4
+%define specrpmversion 6.10.5
+%define specversion 6.10.5
 %define patchversion 6.10
 %define pkgrelease 200
 %define kversion 6
-%define tarfile_release 6.10.4
+%define tarfile_release 6.10.5
 # This is needed to do merge window version magic
 %define patchlevel 10
 # This allows pkg_release to have configurable %%{?dist} tag
 %define specrelease 200%{?buildid}%{?dist}
 # This defines the kabi tarball version
-%define kabiversion 6.10.4
+%define kabiversion 6.10.5
 
 # If this variable is set to 1, a bpf selftests build failure will cause a
 # fatal kernel package build error
@@ -4043,6 +4043,10 @@ fi\
 #
 #
 %changelog
+* Wed Aug 14 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.10.5-0]
+- Revert "ata: libata-scsi: Honor the D_SENSE bit for CK_COND=1 and no error" (Niklas Cassel)
+- Linux v6.10.5
+
 * Sun Aug 11 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.10.4-0]
 - wifi: brcmfmac: cfg80211: Handle SSID based pmksa deletion (Janne Grunau)
 - New config for 6.10.3 (Justin M. Forbes)
