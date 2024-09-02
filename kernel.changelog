@@ -1,7 +1,42 @@
-* Sun Aug 25 2024 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.11.0-0.rc5.43]
-- Revert "pidfd: prevent creation of pidfds for kthreads" (Christian Brauner)
-- Add weakdep support to the kernel spec (Justin M. Forbes)
+* Sun Sep 01 2024 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.11.0-0.rc6.49]
+- Linux v6.11.0-0.rc6
 Resolves: 
+
+* Sat Aug 31 2024 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.11.0-0.rc5.1934261d8974.48]
+- Remove CONFIG_FSCACHE_DEBUG as it has been renamed (Justin M. Forbes)
+- Set Fedora configs for 6.11 (Justin M. Forbes)
+- Linux v6.11.0-0.rc5.1934261d8974
+Resolves: 
+
+* Fri Aug 30 2024 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.11.0-0.rc5.20371ba12063.47]
+- Linux v6.11.0-0.rc5.20371ba12063
+Resolves: 
+
+* Thu Aug 29 2024 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.11.0-0.rc5.d5d547aa7b51.46]
+- redhat/configs: Microchip lan743x driver (Izabela Bakollari)
+- Linux v6.11.0-0.rc5.d5d547aa7b51
+Resolves: 
+
+* Wed Aug 28 2024 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.11.0-0.rc5.86987d84b968.45]
+- redhat: include resolve_btfids in kernel-devel (Jan Stancek)
+- redhat: workaround CKI cross compilation for scripts (Jan Stancek)
+- spec: fix "unexpected argument to non-parametric macro" warnings (Jan Stancek)
+- Linux v6.11.0-0.rc5.86987d84b968
+Resolves: RHEL-56069
+
+* Tue Aug 27 2024 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.11.0-0.rc5.3e9bff3bbe13.44]
+- Linux v6.11.0-0.rc5.3e9bff3bbe13
+Resolves: RHEL-49398
+
+* Mon Aug 26 2024 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.11.0-0.rc5.43]
+- Add weakdep support to the kernel spec (Justin M. Forbes)
+- redhat: configs: disable PF_KEY in RHEL (Sabrina Dubroca)
+- crypto: akcipher - Disable signing and decryption (Vladis Dronov) [RHEL-54183] {CVE-2023-6240}
+- crypto: dh - implement FIPS PCT (Vladis Dronov) [RHEL-54183]
+- crypto: ecdh - disallow plain "ecdh" usage in FIPS mode (Vladis Dronov) [RHEL-54183]
+- crypto: seqiv - flag instantiations as FIPS compliant (Vladis Dronov) [RHEL-54183]
+- [kernel] bpf: set default value for bpf_jit_harden (Artem Savkov) [RHEL-51896]
+Resolves: RHEL-51896, RHEL-54183
 
 * Sun Aug 25 2024 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.11.0-0.rc5.42]
 - Linux v6.11.0-0.rc5
