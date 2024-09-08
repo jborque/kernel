@@ -65,7 +65,7 @@ index eec8df1dde06..88f49dd10cd0 100644
    ...
    PPC     KVM_REG_PPC_TM_GPR31            64
 diff --git a/Makefile b/Makefile
-index 2e5ac6ab3d47..838301b19917 100644
+index 5945cce6b066..f850ff9fe46e 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -22,6 +22,18 @@ $(if $(filter __%, $(MAKECMDGOALS)), \
