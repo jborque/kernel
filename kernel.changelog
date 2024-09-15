@@ -1,3 +1,57 @@
+* Sun Sep 15 2024 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.11.0-63]
+- Linux v6.11.0
+Resolves: 
+
+* Sun Sep 15 2024 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.11.0-0.rc7.d42f7708e27c.62]
+- Linux v6.11.0-0.rc7.d42f7708e27c
+Resolves: 
+
+* Sat Sep 14 2024 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.11.0-0.rc7.b7718454f937.61]
+- Consolidate configs into common for 6.11 kernels (Justin M. Forbes)
+- Linux v6.11.0-0.rc7.b7718454f937
+Resolves: 
+
+* Fri Sep 13 2024 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.11.0-0.rc7.196145c606d0.60]
+- uki-virt: add systemd-cryptsetup module (Vitaly Kuznetsov)
+- redhat/docs: fix command to install missing build dependencies (Davide Cavalca)
+- spec: Respect rpmbuild --without debuginfo (Orgad Shaneh)
+- fedora/configs: enable GPIO expander drivers (Rupinderjit Singh)
+- redhat/configs: Switch to the Rust implementation of AX88796B_PHY driver for Fedora (Neal Gompa)
+- redhat: Turn on support for Rust code in Fedora (Neal Gompa)
+- Turn off RUST for risc-v (Justin M. Forbes)
+- Linux v6.11.0-0.rc7.196145c606d0
+Resolves: 
+
+* Thu Sep 12 2024 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.11.0-0.rc7.77f587896757.59]
+- gitlab-ci: allow failure of clang LTO pipelines (Michael Hofmann)
+- redhat/configs: Consolidate the CONFIG_KVM_BOOK3S_HV_P*_TIMING switches (Thomas Huth)
+- redhat/configs: Consolidate the CONFIG_KVM_SW_PROTECTED_VM switch (Thomas Huth)
+- redhat/configs: Consolidate the CONFIG_KVM_HYPERV switch (Thomas Huth)
+- redhat/configs: Consolidate the CONFIG_KVM_AMD_SEV switch (Thomas Huth)
+- Linux v6.11.0-0.rc7.77f587896757
+Resolves: 
+
+* Wed Sep 11 2024 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.11.0-0.rc7.8d8d276ba2fb.58]
+- Cleanup some riscv CONFIG locations (Justin M. Forbes)
+- Fix up pending riscv Fedora configs post merge (Justin M. Forbes)
+- Linux v6.11.0-0.rc7.8d8d276ba2fb
+Resolves: 
+
+* Tue Sep 10 2024 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.11.0-0.rc7.bc83b4d1f086.57]
+- fedora/configs: Enable SCMI configuration (Rupinderjit Singh)
+- Remove S390 special config for PHYLIB (Justin M. Forbes)
+- Disable ELN for riscv64 (Isaiah Stapleton)
+- redhat: add checks to ensure only building riscv64 on fedora (Isaiah Stapleton)
+- redhat: Add missing riscv fedora configs (Isaiah Stapleton)
+- Add riscv64 to the CI pipelines (Isaiah Stapleton)
+- redhat: Regenerate dist-self-test-data for riscv64 (Isaiah Stapleton)
+- redhat: Add riscv config changes for fedora (David Abdurachmanov)
+- redhat: Add support for riscv (David Abdurachmanov)
+- redhat: Do not include UKI addons twice (Vitaly Kuznetsov)
+- redhat: update gating.yml (Michael Hofmann)
+- Linux v6.11.0-0.rc7.bc83b4d1f086
+Resolves: 
+
 * Mon Sep 09 2024 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.11.0-0.rc7.56]
 - Linux v6.11.0-0.rc7
 Resolves: 
