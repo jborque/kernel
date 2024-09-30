@@ -151,7 +151,7 @@ Summary: The Linux kernel
 #  kernel release. (This includes prepatch or "rc" releases.)
 # Set released_kernel to 0 when the upstream source tarball contains an
 #  unreleased kernel development snapshot.
-%global released_kernel 0
+%global released_kernel 1
 # Set debugbuildsenabled to 1 to build separate base and debug kernels
 #  (on supported architectures). The kernel-debug-* subpackages will
 #  contain the debug kernel.
@@ -160,18 +160,18 @@ Summary: The Linux kernel
 #  the --with-release option overrides this setting.)
 %define debugbuildsenabled 1
 # define buildid .local
-%define specrpmversion 6.11.0
-%define specversion 6.11.0
+%define specrpmversion 6.11.1
+%define specversion 6.11.1
 %define patchversion 6.11
-%define pkgrelease 63
+%define pkgrelease 300
 %define kversion 6
-%define tarfile_release 6.11
+%define tarfile_release 6.11.1
 # This is needed to do merge window version magic
 %define patchlevel 11
 # This allows pkg_release to have configurable %%{?dist} tag
-%define specrelease 63%{?buildid}%{?dist}
+%define specrelease 300%{?buildid}%{?dist}
 # This defines the kabi tarball version
-%define kabiversion 6.11.0
+%define kabiversion 6.11.1
 
 # If this variable is set to 1, a bpf selftests build failure will cause a
 # fatal kernel package build error
@@ -1990,15 +1990,6 @@ for i in *.config; do
 done
 %endif
 
-# Adjust FIPS module name for RHEL
-%if 0%{?rhel}
-%{log_msg "Adjust FIPS module name for RHEL"}
-for i in *.config; do
-  sed -i 's/CONFIG_CRYPTO_FIPS_NAME=.*/CONFIG_CRYPTO_FIPS_NAME="Red Hat Enterprise Linux %{rhel} - Kernel Cryptographic API"/' $i
-done
-%endif
-
-%{log_msg "Set process_configs.sh $OPTS"}
 cp %{SOURCE81} .
 OPTS=""
 %if %{with_configchecks}
@@ -4137,6 +4128,20 @@ fi\
 #
 #
 %changelog
+* Mon Sep 30 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.11.1-0]
+- media: qcom: camss: Fix ordering of pm_runtime_enable (Bryan O'Donoghue)
+- media: qcom: camss: Remove use_count guard in stop_streaming (Bryan O'Donoghue)
+- arm64: dts: allwinner: a64: Add GPU thermal trips to the SoC dtsi (Dragan Simic)
+- arm64: dts: rockchip: Raise Pinebook Pro's panel backlight PWM frequency (Dragan Simic)
+- arm64: dts: qcom: sc8280xp-x13s: Enable RGB sensor (Bryan O'Donoghue)
+- ARM: dts: bcm2837/bcm2712: adjust local intc node names (Stefan Wahren)
+- arm64: dts: broadcom: Add minimal support for Raspberry Pi 5 (Andrea della Porta)
+- Linux v6.11.1
+
+* Tue Sep 24 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.11.0-0]
+- Initial set up for stable Fedora branch (Justin M. Forbes)
+- Reset RHEL_RELEASE for 6.12 (Justin M. Forbes)
+
 * Sun Sep 15 2024 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.11.0-63]
 - Linux v6.11.0
 
