@@ -160,18 +160,18 @@ Summary: The Linux kernel
 #  the --with-release option overrides this setting.)
 %define debugbuildsenabled 1
 # define buildid .local
-%define specrpmversion 6.11.0
-%define specversion 6.11.0
+%define specrpmversion 6.11.2
+%define specversion 6.11.2
 %define patchversion 6.11
 %define pkgrelease 200
 %define kversion 6
-%define tarfile_release 6.11
+%define tarfile_release 6.11.2
 # This is needed to do merge window version magic
 %define patchlevel 11
 # This allows pkg_release to have configurable %%{?dist} tag
 %define specrelease 200%{?buildid}%{?dist}
 # This defines the kabi tarball version
-%define kabiversion 6.11.0
+%define kabiversion 6.11.2
 
 # If this variable is set to 1, a bpf selftests build failure will cause a
 # fatal kernel package build error
@@ -4128,12 +4128,18 @@ fi\
 #
 #
 %changelog
-* Fri Sep 27 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.11.0-200]
+* Fri Oct 04 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.11.2-0]
+- Linux v6.11.2
+
+* Mon Sep 30 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.11.1-0]
+- media: qcom: camss: Fix ordering of pm_runtime_enable (Bryan O'Donoghue)
+- media: qcom: camss: Remove use_count guard in stop_streaming (Bryan O'Donoghue)
 - arm64: dts: allwinner: a64: Add GPU thermal trips to the SoC dtsi (Dragan Simic)
 - arm64: dts: rockchip: Raise Pinebook Pro's panel backlight PWM frequency (Dragan Simic)
 - arm64: dts: qcom: sc8280xp-x13s: Enable RGB sensor (Bryan O'Donoghue)
 - ARM: dts: bcm2837/bcm2712: adjust local intc node names (Stefan Wahren)
 - arm64: dts: broadcom: Add minimal support for Raspberry Pi 5 (Andrea della Porta)
+- Linux v6.11.1
 
 * Tue Sep 24 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.11.0-0]
 - Initial set up for stable Fedora branch (Justin M. Forbes)

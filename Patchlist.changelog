@@ -1,3 +1,9 @@
+https://gitlab.com/cki-project/kernel-ark/-/commit/37f88e3ca1bde6c898222d6dbd8f4d804c2e9834
+ 37f88e3ca1bde6c898222d6dbd8f4d804c2e9834 media: qcom: camss: Fix ordering of pm_runtime_enable
+
+https://gitlab.com/cki-project/kernel-ark/-/commit/9f2335d9e326af21c4376eec9bece213a512e726
+ 9f2335d9e326af21c4376eec9bece213a512e726 media: qcom: camss: Remove use_count guard in stop_streaming
+
 https://gitlab.com/cki-project/kernel-ark/-/commit/7e88a0ffc13ab94b37a3d45e1180bf98d5a1ab75
  7e88a0ffc13ab94b37a3d45e1180bf98d5a1ab75 arm64: dts: allwinner: a64: Add GPU thermal trips to the SoC dtsi
 

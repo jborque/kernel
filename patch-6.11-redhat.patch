@@ -6,7 +6,6 @@
  arch/arm64/boot/dts/broadcom/bcm2712-rpi-5-b.dts   |  64 +++++
  arch/arm64/boot/dts/broadcom/bcm2712.dtsi          | 283 +++++++++++++++++++++
  .../dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts     |  67 +++++
- .../boot/dts/rockchip/rk3399-pinebook-pro.dts      |   2 +-
  arch/s390/include/asm/ipl.h                        |   1 +
  arch/s390/kernel/ipl.c                             |   5 +
  arch/s390/kernel/setup.c                           |   4 +
@@ -29,6 +28,8 @@
  drivers/hwtracing/coresight/coresight-etm4x-core.c |  19 ++
  drivers/input/rmi4/rmi_driver.c                    | 124 +++++----
  drivers/iommu/iommu.c                              |  22 ++
+ drivers/media/platform/qcom/camss/camss-video.c    |   6 -
+ drivers/media/platform/qcom/camss/camss.c          |   5 +-
  drivers/pci/quirks.c                               |  24 ++
  drivers/scsi/sd.c                                  |  10 +
  drivers/usb/core/hub.c                             |   7 +
@@ -44,10 +45,10 @@
  security/lockdown/Kconfig                          |  13 +
  security/lockdown/lockdown.c                       |   1 +
  security/security.c                                |  12 +
- 46 files changed, 972 insertions(+), 234 deletions(-)
+ 47 files changed, 974 insertions(+), 241 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index 34bd1d5f9672..5564bb6e8822 100644
+index 7bcf0c32ea5e..f2c0bc57ebaa 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -22,6 +22,18 @@ $(if $(filter __%, $(MAKECMDGOALS)), \
@@ -125,7 +126,7 @@ index 84c08b46519d..c281697142b1 100644
  			reg = <0x40000000 0x100>;
  			interrupt-controller;
 diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index a2f8ff354ca6..e185f3e75a5c 100644
+index c8cba20a4d11..40a1665236ab 100644
 --- a/arch/arm64/Kconfig
 +++ b/arch/arm64/Kconfig
 @@ -1365,7 +1365,7 @@ endchoice
@@ -627,19 +628,6 @@ index b27143f81867..320706c88cdd 100644
  	edp_reg_en: edp-reg-en-state {
  		pins = "gpio25";
  		function = "gpio";
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-pinebook-pro.dts b/arch/arm64/boot/dts/rockchip/rk3399-pinebook-pro.dts
-index 294eb2de263d..b3f76cc2d6e1 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-pinebook-pro.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-pinebook-pro.dts
-@@ -32,7 +32,7 @@ chosen {
- 	backlight: edp-backlight {
- 		compatible = "pwm-backlight";
- 		power-supply = <&vcc_12v>;
--		pwms = <&pwm0 0 740740 0>;
-+		pwms = <&pwm0 0 125000 0>;
- 	};
- 
- 	bat: battery {
 diff --git a/arch/s390/include/asm/ipl.h b/arch/s390/include/asm/ipl.h
 index b0d00032479d..afb9544fb007 100644
 --- a/arch/s390/include/asm/ipl.h
@@ -1657,11 +1645,58 @@ index ed6c5cb60c5a..70cb770b78bb 100644
  /**
   * iommu_setup_default_domain - Set the default_domain for the group
   * @group: Group to change
+diff --git a/drivers/media/platform/qcom/camss/camss-video.c b/drivers/media/platform/qcom/camss/camss-video.c
+index cd72feca618c..3b8fc31d957c 100644
+--- a/drivers/media/platform/qcom/camss/camss-video.c
++++ b/drivers/media/platform/qcom/camss/camss-video.c
+@@ -297,12 +297,6 @@ static void video_stop_streaming(struct vb2_queue *q)
+ 
+ 		ret = v4l2_subdev_call(subdev, video, s_stream, 0);
+ 
+-		if (entity->use_count > 1) {
+-			/* Don't stop if other instances of the pipeline are still running */
+-			dev_dbg(video->camss->dev, "Video pipeline still used, don't stop streaming.\n");
+-			return;
+-		}
+-
+ 		if (ret) {
+ 			dev_err(video->camss->dev, "Video pipeline stop failed: %d\n", ret);
+ 			return;
+diff --git a/drivers/media/platform/qcom/camss/camss.c b/drivers/media/platform/qcom/camss/camss.c
+index 51b1d3550421..d64985ca6e88 100644
+--- a/drivers/media/platform/qcom/camss/camss.c
++++ b/drivers/media/platform/qcom/camss/camss.c
+@@ -2283,6 +2283,8 @@ static int camss_probe(struct platform_device *pdev)
+ 
+ 	v4l2_async_nf_init(&camss->notifier, &camss->v4l2_dev);
+ 
++	pm_runtime_enable(dev);
++
+ 	num_subdevs = camss_of_parse_ports(camss);
+ 	if (num_subdevs < 0) {
+ 		ret = num_subdevs;
+@@ -2323,8 +2325,6 @@ static int camss_probe(struct platform_device *pdev)
+ 		}
+ 	}
+ 
+-	pm_runtime_enable(dev);
+-
+ 	return 0;
+ 
+ err_register_subdevs:
+@@ -2332,6 +2332,7 @@ static int camss_probe(struct platform_device *pdev)
+ err_v4l2_device_unregister:
+ 	v4l2_device_unregister(&camss->v4l2_dev);
+ 	v4l2_async_nf_cleanup(&camss->notifier);
++	pm_runtime_disable(dev);
+ err_genpd_cleanup:
+ 	camss_genpd_cleanup(camss);
+ 
 diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index a2ce4e08edf5..07dd75b1f580 100644
+index 5d57ea27dbc4..304afc09fc11 100644
 --- a/drivers/pci/quirks.c
 +++ b/drivers/pci/quirks.c
-@@ -4433,6 +4433,30 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_BROADCOM, 0x9000,
+@@ -4446,6 +4446,30 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_BROADCOM, 0x9000,
  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_BROADCOM, 0x9084,
  				quirk_bridge_cavm_thrx2_pcie_root);
  
@@ -1693,7 +1728,7 @@ index a2ce4e08edf5..07dd75b1f580 100644
   * Intersil/Techwell TW686[4589]-based video capture cards have an empty (zero)
   * class code.  Fix it.
 diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
-index 9db86943d04c..6e03290a7a07 100644
+index 53896df7ec2b..98e08f10f60e 100644
 --- a/drivers/scsi/sd.c
 +++ b/drivers/scsi/sd.c
 @@ -122,6 +122,14 @@ static const char *sd_cache_types[] = {
@@ -1820,10 +1855,10 @@ index 6bf3c4fe8511..67e5400f7644 100644
  enum efi_secureboot_mode efi_get_secureboot_mode(efi_get_variable_t *get_var)
  {
 diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index 855db460e08b..7a8c28cd7510 100644
+index 19c333fafe11..db33ee7f55d5 100644
 --- a/include/linux/lsm_hook_defs.h
 +++ b/include/linux/lsm_hook_defs.h
-@@ -438,6 +438,8 @@ LSM_HOOK(int, 0, bpf_token_capable, const struct bpf_token *token, int cap)
+@@ -439,6 +439,8 @@ LSM_HOOK(int, 0, bpf_token_capable, const struct bpf_token *token, int cap)
  #endif /* CONFIG_BPF_SYSCALL */
  
  LSM_HOOK(int, 0, locked_down, enum lockdown_reason what)
@@ -2018,10 +2053,10 @@ index cd84d8ea1dfb..e4c70a0312bc 100644
  
  const struct lsm_id lockdown_lsmid = {
 diff --git a/security/security.c b/security/security.c
-index 8cee5b6c6e6d..489e25946bf9 100644
+index 43166e341526..b8cf110aeb58 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -5596,6 +5596,18 @@ int security_locked_down(enum lockdown_reason what)
+@@ -5630,6 +5630,18 @@ int security_locked_down(enum lockdown_reason what)
  }
  EXPORT_SYMBOL(security_locked_down);
  
