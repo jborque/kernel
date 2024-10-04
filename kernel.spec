@@ -160,18 +160,18 @@ Summary: The Linux kernel
 #  the --with-release option overrides this setting.)
 %define debugbuildsenabled 1
 # define buildid .local
-%define specrpmversion 6.11.1
-%define specversion 6.11.1
+%define specrpmversion 6.11.2
+%define specversion 6.11.2
 %define patchversion 6.11
 %define pkgrelease 300
 %define kversion 6
-%define tarfile_release 6.11.1
+%define tarfile_release 6.11.2
 # This is needed to do merge window version magic
 %define patchlevel 11
 # This allows pkg_release to have configurable %%{?dist} tag
 %define specrelease 300%{?buildid}%{?dist}
 # This defines the kabi tarball version
-%define kabiversion 6.11.1
+%define kabiversion 6.11.2
 
 # If this variable is set to 1, a bpf selftests build failure will cause a
 # fatal kernel package build error
@@ -4128,6 +4128,9 @@ fi\
 #
 #
 %changelog
+* Fri Oct 04 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.11.2-0]
+- Linux v6.11.2
+
 * Mon Sep 30 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.11.1-0]
 - media: qcom: camss: Fix ordering of pm_runtime_enable (Bryan O'Donoghue)
 - media: qcom: camss: Remove use_count guard in stop_streaming (Bryan O'Donoghue)
