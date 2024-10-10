@@ -160,18 +160,18 @@ Summary: The Linux kernel
 #  the --with-release option overrides this setting.)
 %define debugbuildsenabled 1
 # define buildid .local
-%define specrpmversion 6.11.2
-%define specversion 6.11.2
+%define specrpmversion 6.11.3
+%define specversion 6.11.3
 %define patchversion 6.11
 %define pkgrelease 300
 %define kversion 6
-%define tarfile_release 6.11.2
+%define tarfile_release 6.11.3
 # This is needed to do merge window version magic
 %define patchlevel 11
 # This allows pkg_release to have configurable %%{?dist} tag
 %define specrelease 300%{?buildid}%{?dist}
 # This defines the kabi tarball version
-%define kabiversion 6.11.2
+%define kabiversion 6.11.3
 
 # If this variable is set to 1, a bpf selftests build failure will cause a
 # fatal kernel package build error
@@ -4128,6 +4128,23 @@ fi\
 #
 #
 %changelog
+* Thu Oct 10 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.11.3-300]
+- Add F39 and F40 to release_targets (Justin M. Forbes)
+
+* Thu Oct 10 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.11.3-0]
+- Add bugs to BugsFixed (Justin M. Forbes)
+- HID: amd_sfh: Switch to device-managed dmam_alloc_coherent() (Basavaraj Natikar)
+- wifi: rtw89: pci: early chips only enable 36-bit DMA on specific PCI hosts (Ping-Ke Shih)
+- HID: lenovo: Add support for Thinkpad X1 Tablet Gen 3 keyboard (Hans de Goede)
+- configs: fedora/x86: Set CONFIG_CRYPTO_DEV_CCP_DD=y (Hans de Goede)
+- common: arm64: build in some SCMI options (Peter Robinson)
+- common: Cleanup ARM_SCMI_TRANSPORT options (Peter Robinson)
+- Another BugsFixed entry (Justin M. Forbes)
+- Add bug to BugsFixed (Justin M. Forbes)
+- Turn on ZRAM_WRITEBACK for Fedora (Justin M. Forbes)
+- Config updates for 6.11.3 (Justin M. Forbes)
+- Linux v6.11.3
+
 * Fri Oct 04 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.11.2-0]
 - Linux v6.11.2
 
