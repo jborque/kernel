@@ -64,7 +64,7 @@ index eec8df1dde06a..88f49dd10cd06 100644
    ...
    PPC     KVM_REG_PPC_TM_GPR31            64
 diff --git a/Makefile b/Makefile
-index 93731d0b1a04a..81291ebb3aa4f 100644
+index 0ba45bdf4a3b0..cd38811475e2f 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -22,6 +22,18 @@ $(if $(filter __%, $(MAKECMDGOALS)), \
@@ -103,10 +103,10 @@ index ee5115252aac4..7f3796df84041 100644
  	  The VM uses one page of physical memory for each page table.
  	  For systems with a lot of processes, this can use a lot of
 diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index cd9772b1fd95e..f3b3d8493c1c2 100644
+index 43d79f87fa180..8d387d065cc07 100644
 --- a/arch/arm64/Kconfig
 +++ b/arch/arm64/Kconfig
-@@ -1364,7 +1364,7 @@ endchoice
+@@ -1365,7 +1365,7 @@ endchoice
  
  config ARM64_FORCE_52BIT
  	bool "Force 52-bit virtual addresses for userspace"
