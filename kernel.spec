@@ -160,18 +160,18 @@ Summary: The Linux kernel
 #  the --with-release option overrides this setting.)
 %define debugbuildsenabled 1
 # define buildid .local
-%define specrpmversion 6.11.4
-%define specversion 6.11.4
+%define specrpmversion 6.11.5
+%define specversion 6.11.5
 %define patchversion 6.11
-%define pkgrelease 201
+%define pkgrelease 200
 %define kversion 6
-%define tarfile_release 6.11.4
+%define tarfile_release 6.11.5
 # This is needed to do merge window version magic
 %define patchlevel 11
 # This allows pkg_release to have configurable %%{?dist} tag
-%define specrelease 201%{?buildid}%{?dist}
+%define specrelease 200%{?buildid}%{?dist}
 # This defines the kabi tarball version
-%define kabiversion 6.11.4
+%define kabiversion 6.11.5
 
 # If this variable is set to 1, a bpf selftests build failure will cause a
 # fatal kernel package build error
@@ -4128,10 +4128,12 @@ fi\
 #
 #
 %changelog
-* Sun Oct 20 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.11.4-201]
+* Tue Oct 22 2024 Augusto Caringi <acaringi@redhat.com> [6.11.5-0]
+- Revert "fedora/configs: enable GPIO expander drivers" (Justin M. Forbes)
 - Add bluetooth bzs to BugsFixed (Justin M. Forbes)
 - Bluetooth: btusb: Fix not being able to reconnect after suspend (Luiz Augusto von Dentz)
 - Bluetooth: btusb: Fix regression with fake CSR controllers 0a12:0001 (Luiz Augusto von Dentz)
+- Linux v6.11.5
 
 * Thu Oct 17 2024 Augusto Caringi <acaringi@redhat.com> [6.11.4-0]
 - Add F39 and F40 to release_targets (Justin M. Forbes)
