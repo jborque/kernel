@@ -1223,6 +1223,7 @@ Patch1: patch-%{patchversion}-redhat.patch
 %endif
 
 Patch901: 0001-Allow-hibernate-while-kernel-lockdown.patch
+Patch902: 0001-drm-amdgpu-don-t-attach-the-tlb-fence-for-SI.patch
 
 # empty final patch to facilitate testing of kernel patches
 Patch999999: linux-kernel-test.patch
@@ -2180,6 +2181,7 @@ ApplyOptionalPatch patch-%{patchversion}-redhat.patch
 %endif
 
 ApplyOptionalPatch 0001-Allow-hibernate-while-kernel-lockdown.patch
+ApplyOptionalPatch 0001-drm-amdgpu-don-t-attach-the-tlb-fence-for-SI.patch
 
 ApplyOptionalPatch linux-kernel-test.patch
 
