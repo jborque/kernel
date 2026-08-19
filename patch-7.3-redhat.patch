@@ -77,10 +77,10 @@
  76 files changed, 2669 insertions(+), 108 deletions(-)
 
 diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index e8ff36982d97..0abff56b135d 100644
+index deae852f71e4..3aa90e325164 100644
 --- a/Documentation/admin-guide/kernel-parameters.txt
 +++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -6641,6 +6641,20 @@ Kernel parameters
+@@ -6671,6 +6671,20 @@ Kernel parameters
  		2	The "airplane mode" button toggles between everything
  			blocked and everything unblocked.
  
@@ -101,7 +101,7 @@ index e8ff36982d97..0abff56b135d 100644
  	ring3mwait=disable
  			[KNL] Disable ring 3 MONITOR/MWAIT feature on supported
  			CPUs.
-@@ -8061,6 +8075,15 @@ Kernel parameters
+@@ -8091,6 +8105,15 @@ Kernel parameters
  	unknown_nmi_panic
  			[X86] Cause panic on unknown NMI.
  
@@ -200,7 +200,7 @@ index 000000000000..85771d74c34f
 +
 +endmenu
 diff --git a/Makefile b/Makefile
-index ddcc6dca1ece..7c52f4c368ef 100644
+index 130926fa592e..c418cec4786e 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -358,6 +358,17 @@ ifneq ($(filter install,$(MAKECMDGOALS)),)
@@ -221,7 +221,7 @@ index ddcc6dca1ece..7c52f4c368ef 100644
  ifdef mixed-build
  # ===========================================================================
  # We're called with mixed targets (*config and build targets).
-@@ -1432,6 +1443,8 @@ uapi-asm-generic:
+@@ -1438,6 +1449,8 @@ uapi-asm-generic:
  # Generate some files
  # ---------------------------------------------------------------------------
  
@@ -230,7 +230,7 @@ index ddcc6dca1ece..7c52f4c368ef 100644
  # KERNELRELEASE can change from a few different places, meaning version.h
  # needs to be updated, so this check is forced on all builds
  
-@@ -1456,7 +1469,13 @@ define filechk_version.h
+@@ -1462,7 +1475,13 @@ define filechk_version.h
  	((c) > 255 ? 255 : (c)))';                                       \
  	echo \#define LINUX_VERSION_MAJOR $(VERSION);                    \
  	echo \#define LINUX_VERSION_PATCHLEVEL $(PATCHLEVEL);            \
@@ -245,7 +245,7 @@ index ddcc6dca1ece..7c52f4c368ef 100644
  endef
  
  $(version_h): private PATCHLEVEL := $(or $(PATCHLEVEL), 0)
-@@ -2108,6 +2127,23 @@ endif
+@@ -2114,6 +2133,23 @@ endif
  
  ifdef CONFIG_MODULES
  
@@ -270,10 +270,10 @@ index ddcc6dca1ece..7c52f4c368ef 100644
  	@:
  
 diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 9187240a02db..46d1258700af 100644
+index f10379dfe7a3..4cb8e526e5dc 100644
 --- a/arch/arm/Kconfig
 +++ b/arch/arm/Kconfig
-@@ -1216,9 +1216,9 @@ config HIGHMEM
+@@ -1226,9 +1226,9 @@ config HIGHMEM
  	  If unsure, say n.
  
  config HIGHPTE
@@ -286,10 +286,10 @@ index 9187240a02db..46d1258700af 100644
  	  The VM uses one page of physical memory for each page table.
  	  For systems with a lot of processes, this can use a lot of
 diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index b3afe0688919..d23a728aac03 100644
+index 440c1015eb38..6f2c3ce7a21e 100644
 --- a/arch/arm64/Kconfig
 +++ b/arch/arm64/Kconfig
-@@ -1489,7 +1489,7 @@ endchoice
+@@ -1533,7 +1533,7 @@ endchoice
  
  config ARM64_FORCE_52BIT
  	bool "Force 52-bit virtual addresses for userspace"
@@ -398,10 +398,10 @@ index b60284328fe3..e4d37b08ca29 100644
  	/* boot_command_line has been already set up in early.c */
  	*cmdline_p = boot_command_line;
 diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-index a3caddd411ec..d654bb2b9c7a 100644
+index c7352827f491..09b2c1c67f3a 100644
 --- a/arch/x86/kernel/cpu/common.c
 +++ b/arch/x86/kernel/cpu/common.c
-@@ -1797,6 +1797,7 @@ static void __init early_identify_cpu(struct cpuinfo_x86 *c)
+@@ -1807,6 +1807,7 @@ static void __init early_identify_cpu(struct cpuinfo_x86 *c)
  		get_cpu_vendor(c);
  		intel_unlock_cpuid_leafs(c);
  		get_cpu_cap(c);
@@ -410,7 +410,7 @@ index a3caddd411ec..d654bb2b9c7a 100644
  		get_cpu_address_sizes(c);
  		cpu_parse_early_param();
 diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-index 46882ce79c3a..49173ab3fcf7 100644
+index 1cc4aa65930c..e83ace30e096 100644
 --- a/arch/x86/kernel/setup.c
 +++ b/arch/x86/kernel/setup.c
 @@ -21,6 +21,7 @@
@@ -432,7 +432,7 @@ index 46882ce79c3a..49173ab3fcf7 100644
  
  /*
   * max_low_pfn_mapped: highest directly mapped pfn < 4 GB
-@@ -825,6 +830,79 @@ static void __init early_reserve_memory(void)
+@@ -824,6 +829,79 @@ static void __init early_reserve_memory(void)
  	trim_snb_memory();
  }
  
@@ -512,7 +512,7 @@ index 46882ce79c3a..49173ab3fcf7 100644
  /*
   * Dump out kernel offset information on panic.
   */
-@@ -995,6 +1073,13 @@ void __init setup_arch(char **cmdline_p)
+@@ -994,6 +1072,13 @@ void __init setup_arch(char **cmdline_p)
  	if (efi_enabled(EFI_BOOT))
  		efi_init();
  
@@ -526,7 +526,7 @@ index 46882ce79c3a..49173ab3fcf7 100644
  	reserve_ibft_region();
  	x86_init.resources.dmi_setup();
  
-@@ -1156,19 +1241,7 @@ void __init setup_arch(char **cmdline_p)
+@@ -1155,19 +1240,7 @@ void __init setup_arch(char **cmdline_p)
  	/* Allocate bigger log buffer */
  	setup_log_buf(1);
  
@@ -547,7 +547,7 @@ index 46882ce79c3a..49173ab3fcf7 100644
  
  	reserve_initrd();
  
-@@ -1275,6 +1348,8 @@ void __init setup_arch(char **cmdline_p)
+@@ -1274,6 +1347,8 @@ void __init setup_arch(char **cmdline_p)
  		efi_apply_memmap_quirks();
  #endif
  
@@ -714,10 +714,10 @@ index 20d757687e3d..90a13f20f052 100644
  	for (i = 0; i < hest_tab->error_source_count; i++) {
  		len = hest_esrc_len(hest_hdr);
 diff --git a/drivers/acpi/irq.c b/drivers/acpi/irq.c
-index d1595156c86a..9485212f1a6d 100644
+index e4293458bf61..5e97e8aa7f63 100644
 --- a/drivers/acpi/irq.c
 +++ b/drivers/acpi/irq.c
-@@ -143,6 +143,7 @@ struct acpi_irq_parse_one_ctx {
+@@ -144,6 +144,7 @@ struct acpi_irq_parse_one_ctx {
  	unsigned int index;
  	unsigned long *res_flags;
  	struct irq_fwspec *fwspec;
@@ -725,7 +725,7 @@ index d1595156c86a..9485212f1a6d 100644
  };
  
  /**
-@@ -216,7 +217,8 @@ static acpi_status acpi_irq_parse_one_cb(struct acpi_resource *ares,
+@@ -217,7 +218,8 @@ static acpi_status acpi_irq_parse_one_cb(struct acpi_resource *ares,
  		return AE_CTRL_TERMINATE;
  	case ACPI_RESOURCE_TYPE_EXTENDED_IRQ:
  		eirq = &ares->data.extended_irq;
@@ -735,7 +735,7 @@ index d1595156c86a..9485212f1a6d 100644
  			return AE_OK;
  		if (ctx->index >= eirq->interrupt_count) {
  			ctx->index -= eirq->interrupt_count;
-@@ -252,8 +254,19 @@ static acpi_status acpi_irq_parse_one_cb(struct acpi_resource *ares,
+@@ -253,8 +255,19 @@ static acpi_status acpi_irq_parse_one_cb(struct acpi_resource *ares,
  static int acpi_irq_parse_one(acpi_handle handle, unsigned int index,
  			      struct irq_fwspec *fwspec, unsigned long *flags)
  {
@@ -757,10 +757,10 @@ index d1595156c86a..9485212f1a6d 100644
  	return ctx.rc;
  }
 diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index 9a7ac2eb9ce0..6556c3d7b269 100644
+index e9e374f2ad66..e9a96f0a15e8 100644
 --- a/drivers/acpi/scan.c
 +++ b/drivers/acpi/scan.c
-@@ -1794,6 +1794,15 @@ static bool acpi_device_enumeration_by_parent(struct acpi_device *device)
+@@ -1793,6 +1793,15 @@ static bool acpi_device_enumeration_by_parent(struct acpi_device *device)
  	if (!acpi_match_device_ids(device, ignore_serial_bus_ids))
  		return false;
  
@@ -1804,7 +1804,7 @@ index ccbc35479684..8eb9a1276ba7 100644
  enum efi_secureboot_mode efi_get_secureboot_mode(efi_get_variable_t *get_var)
  {
 diff --git a/include/linux/kernel.h b/include/linux/kernel.h
-index e5570a16cbb1..82945b474e2e 100644
+index 24414c79e59a..b086915ec6c0 100644
 --- a/include/linux/kernel.h
 +++ b/include/linux/kernel.h
 @@ -194,4 +194,32 @@ extern enum system_states system_state;
@@ -3835,7 +3835,7 @@ index 0a4fdd8bd975..dcb12dad419f 100644
  objtool-args = $(objtool-args-y)					\
  	$(if $(delay-objtool), --link)					\
 diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
-index a7b72a81d248..9b62ee078734 100644
+index 75374c64b8cc..62f1549582fd 100644
 --- a/scripts/mod/modpost.c
 +++ b/scripts/mod/modpost.c
 @@ -27,6 +27,7 @@
@@ -3846,7 +3846,7 @@ index a7b72a81d248..9b62ee078734 100644
  
  #define MODULE_NS_PREFIX "module:"
  
-@@ -2066,6 +2067,12 @@ static void write_buf(struct buffer *b, const char *fname)
+@@ -2067,6 +2068,12 @@ static void write_buf(struct buffer *b, const char *fname)
  	}
  }
  
@@ -3859,7 +3859,7 @@ index a7b72a81d248..9b62ee078734 100644
  static void write_if_changed(struct buffer *b, const char *fname)
  {
  	char *tmp;
-@@ -2150,6 +2157,7 @@ static void write_mod_c_file(struct module *mod)
+@@ -2151,6 +2158,7 @@ static void write_mod_c_file(struct module *mod)
  	}
  
  	add_srcversion(&buf, mod);
@@ -3868,7 +3868,7 @@ index a7b72a81d248..9b62ee078734 100644
  	ret = snprintf(fname, sizeof(fname), "%s.mod.c", mod->name);
  	if (ret >= sizeof(fname)) {
 diff --git a/scripts/tags.sh b/scripts/tags.sh
-index 243373683f98..2affd5e58ee8 100755
+index 41e38df96984..d35505058ebb 100755
 --- a/scripts/tags.sh
 +++ b/scripts/tags.sh
 @@ -16,6 +16,8 @@ fi
