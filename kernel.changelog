@@ -1,5 +1,21 @@
-* Fri Aug 21 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.3.0-0.rc0.818bebeb63dd.8]
+* Mon Aug 24 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.3.0-0.rc0.47096fc3d064.11]
+- sched: move stack_canary to the start of the randomizable region (Scott Weaver)
 - automotive: enable HUGETLBFS to workaround build error (Scott Weaver)
+Resolves: 
+
+* Mon Aug 24 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.3.0-0.rc0.47096fc3d064.10]
+- Fix up an s390 mismatch (Justin M. Forbes)
+- Switch CPU_IDLE for a mismatch (Justin M. Forbes)
+- Build drm_log (Jocelyn Falempe)
+- Linux v7.3.0-0.rc0.47096fc3d064
+Resolves: 
+
+* Sun Aug 23 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.3.0-0.rc0.2709dd5ae32f.9]
+- Linux v7.3.0-0.rc0.2709dd5ae32f
+Resolves: 
+
+* Sat Aug 22 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.3.0-0.rc0.26260251022f.8]
+- Linux v7.3.0-0.rc0.26260251022f
 Resolves: 
 
 * Fri Aug 21 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.3.0-0.rc0.818bebeb63dd.7]
