@@ -1,5 +1,5 @@
-https://gitlab.com/cki-project/kernel-ark/-/commit/b885afc64c46535ce527f95c7c674f5bed6ba27a
- b885afc64c46535ce527f95c7c674f5bed6ba27a sched: move stack_canary to the start of the randomizable region
+https://gitlab.com/cki-project/kernel-ark/-/commit/4fe7b5a7bbc3c98aa90c4a4485fc6d7efd81fcdf
+ 4fe7b5a7bbc3c98aa90c4a4485fc6d7efd81fcdf sched: move stack_canary to the start of the randomizable region
 
 https://gitlab.com/cki-project/kernel-ark/-/commit/6a744b3f3df25c802e864b296473adc6751586c2
  6a744b3f3df25c802e864b296473adc6751586c2 [redhat] drivers/scsi/sd.c: cleanup

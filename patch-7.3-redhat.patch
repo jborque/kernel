@@ -78,10 +78,10 @@
  77 files changed, 2676 insertions(+), 113 deletions(-)
 
 diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index 66c1c879a0b2..1d9ba9d6b731 100644
+index e8cbc5dcffa2..ada0edf0cb7f 100644
 --- a/Documentation/admin-guide/kernel-parameters.txt
 +++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -6695,6 +6695,20 @@ Kernel parameters
+@@ -6700,6 +6700,20 @@ Kernel parameters
  		2	The "airplane mode" button toggles between everything
  			blocked and everything unblocked.
  
@@ -102,7 +102,7 @@ index 66c1c879a0b2..1d9ba9d6b731 100644
  	ring3mwait=disable
  			[KNL] Disable ring 3 MONITOR/MWAIT feature on supported
  			CPUs.
-@@ -8098,6 +8112,15 @@ Kernel parameters
+@@ -8105,6 +8119,15 @@ Kernel parameters
  	unknown_nmi_panic
  			[X86] Cause panic on unknown NMI.
  
