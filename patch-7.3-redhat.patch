@@ -78,10 +78,10 @@
  77 files changed, 2676 insertions(+), 113 deletions(-)
 
 diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index e8cbc5dcffa2..ada0edf0cb7f 100644
+index 68647ff4bdd2..a786aad83a2b 100644
 --- a/Documentation/admin-guide/kernel-parameters.txt
 +++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -6700,6 +6700,20 @@ Kernel parameters
+@@ -6726,6 +6726,20 @@ Kernel parameters
  		2	The "airplane mode" button toggles between everything
  			blocked and everything unblocked.
  
@@ -102,7 +102,7 @@ index e8cbc5dcffa2..ada0edf0cb7f 100644
  	ring3mwait=disable
  			[KNL] Disable ring 3 MONITOR/MWAIT feature on supported
  			CPUs.
-@@ -8105,6 +8119,15 @@ Kernel parameters
+@@ -8131,6 +8145,15 @@ Kernel parameters
  	unknown_nmi_panic
  			[X86] Cause panic on unknown NMI.
  
@@ -201,7 +201,7 @@ index 000000000000..85771d74c34f
 +
 +endmenu
 diff --git a/Makefile b/Makefile
-index 3d58dfa97791..20ea65078733 100644
+index 4ad67b737af7..8e6fa41efa85 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -358,6 +358,17 @@ ifneq ($(filter install,$(MAKECMDGOALS)),)
@@ -222,7 +222,7 @@ index 3d58dfa97791..20ea65078733 100644
  ifdef mixed-build
  # ===========================================================================
  # We're called with mixed targets (*config and build targets).
-@@ -1438,6 +1449,8 @@ uapi-asm-generic:
+@@ -1449,6 +1460,8 @@ uapi-asm-generic:
  # Generate some files
  # ---------------------------------------------------------------------------
  
@@ -231,7 +231,7 @@ index 3d58dfa97791..20ea65078733 100644
  # KERNELRELEASE can change from a few different places, meaning version.h
  # needs to be updated, so this check is forced on all builds
  
-@@ -1462,7 +1475,13 @@ define filechk_version.h
+@@ -1473,7 +1486,13 @@ define filechk_version.h
  	((c) > 255 ? 255 : (c)))';                                       \
  	echo \#define LINUX_VERSION_MAJOR $(VERSION);                    \
  	echo \#define LINUX_VERSION_PATCHLEVEL $(PATCHLEVEL);            \
@@ -246,7 +246,7 @@ index 3d58dfa97791..20ea65078733 100644
  endef
  
  $(version_h): private PATCHLEVEL := $(or $(PATCHLEVEL), 0)
-@@ -2114,6 +2133,23 @@ endif
+@@ -2150,6 +2169,23 @@ endif
  
  ifdef CONFIG_MODULES
  
@@ -271,10 +271,10 @@ index 3d58dfa97791..20ea65078733 100644
  	@:
  
 diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index f10379dfe7a3..4cb8e526e5dc 100644
+index ffbc7f386131..abff04320b4e 100644
 --- a/arch/arm/Kconfig
 +++ b/arch/arm/Kconfig
-@@ -1226,9 +1226,9 @@ config HIGHMEM
+@@ -1227,9 +1227,9 @@ config HIGHMEM
  	  If unsure, say n.
  
  config HIGHPTE
@@ -411,10 +411,10 @@ index c7352827f491..09b2c1c67f3a 100644
  		get_cpu_address_sizes(c);
  		cpu_parse_early_param();
 diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-index a8c873356f17..7e6c1f2a8e0f 100644
+index cda6adb9f69c..ec8d0bb4351a 100644
 --- a/arch/x86/kernel/setup.c
 +++ b/arch/x86/kernel/setup.c
-@@ -22,6 +22,7 @@
+@@ -23,6 +23,7 @@
  #include <linux/pci.h>
  #include <linux/random.h>
  #include <linux/root_dev.h>
@@ -422,7 +422,7 @@ index a8c873356f17..7e6c1f2a8e0f 100644
  #include <linux/static_call.h>
  #include <linux/sysfb.h>
  #include <linux/swiotlb.h>
-@@ -58,6 +59,10 @@
+@@ -59,6 +60,10 @@
  #include <asm/thermal.h>
  #include <asm/unwind.h>
  #include <asm/vsyscall.h>
@@ -433,7 +433,7 @@ index a8c873356f17..7e6c1f2a8e0f 100644
  
  /*
   * max_low_pfn_mapped: highest directly mapped pfn < 4 GB
-@@ -825,6 +830,79 @@ static void __init early_reserve_memory(void)
+@@ -826,6 +831,79 @@ static void __init early_reserve_memory(void)
  	trim_snb_memory();
  }
  
@@ -513,7 +513,7 @@ index a8c873356f17..7e6c1f2a8e0f 100644
  /*
   * Dump out kernel offset information on panic.
   */
-@@ -995,6 +1073,13 @@ void __init setup_arch(char **cmdline_p)
+@@ -1007,6 +1085,13 @@ void __init setup_arch(char **cmdline_p)
  	if (efi_enabled(EFI_BOOT))
  		efi_init();
  
@@ -527,7 +527,7 @@ index a8c873356f17..7e6c1f2a8e0f 100644
  	reserve_ibft_region();
  	x86_init.resources.dmi_setup();
  
-@@ -1156,19 +1241,7 @@ void __init setup_arch(char **cmdline_p)
+@@ -1168,19 +1253,7 @@ void __init setup_arch(char **cmdline_p)
  	/* Allocate bigger log buffer */
  	setup_log_buf(1);
  
@@ -548,7 +548,7 @@ index a8c873356f17..7e6c1f2a8e0f 100644
  
  	reserve_initrd();
  
-@@ -1275,6 +1348,8 @@ void __init setup_arch(char **cmdline_p)
+@@ -1287,6 +1360,8 @@ void __init setup_arch(char **cmdline_p)
  		efi_apply_memmap_quirks();
  #endif
  
@@ -758,10 +758,10 @@ index e4293458bf61..5e97e8aa7f63 100644
  	return ctx.rc;
  }
 diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index 9df1d76fbf2b..edc879cdbaa8 100644
+index f48715ed827c..a64ca4014304 100644
 --- a/drivers/acpi/scan.c
 +++ b/drivers/acpi/scan.c
-@@ -1795,6 +1795,15 @@ static bool acpi_device_enumeration_by_parent(struct acpi_device *device)
+@@ -1800,6 +1800,15 @@ static bool acpi_device_enumeration_by_parent(struct acpi_device *device)
  	if (!acpi_match_device_ids(device, ignore_serial_bus_ids))
  		return false;
  
@@ -833,7 +833,7 @@ index 505e32911c34..26f7ee0ccf40 100644
  		dmi_decode_ipmi((const struct dmi_header *) dev->device_data);
  
 diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
-index ab4c85f3d6fe..92de1165f6ef 100644
+index 152dd6b5bb27..e1ceb726eb51 100644
 --- a/drivers/char/ipmi/ipmi_msghandler.c
 +++ b/drivers/char/ipmi/ipmi_msghandler.c
 @@ -34,6 +34,7 @@
@@ -844,7 +844,7 @@ index ab4c85f3d6fe..92de1165f6ef 100644
  #include <linux/delay.h>
  
  #define IPMI_DRIVER_VERSION "39.2"
-@@ -5643,8 +5644,21 @@ static int __init ipmi_init_msghandler_mod(void)
+@@ -5648,8 +5649,21 @@ static int __init ipmi_init_msghandler_mod(void)
  {
  	int rv;
  
@@ -1332,7 +1332,7 @@ index 000000000000..de0a3714a5d4
 +	}
 +}
 diff --git a/drivers/hwtracing/coresight/coresight-etm4x-core.c b/drivers/hwtracing/coresight/coresight-etm4x-core.c
-index 14bb31bd6a0b..0529359d7440 100644
+index 2247ad55d444..5f9da88479e8 100644
 --- a/drivers/hwtracing/coresight/coresight-etm4x-core.c
 +++ b/drivers/hwtracing/coresight/coresight-etm4x-core.c
 @@ -12,6 +12,7 @@
@@ -1343,7 +1343,7 @@ index 14bb31bd6a0b..0529359d7440 100644
  #include <linux/io.h>
  #include <linux/err.h>
  #include <linux/fs.h>
-@@ -2447,6 +2448,16 @@ static const struct amba_id etm4_ids[] = {
+@@ -2458,6 +2459,16 @@ static const struct amba_id etm4_ids[] = {
  	{},
  };
  
@@ -1360,7 +1360,7 @@ index 14bb31bd6a0b..0529359d7440 100644
  MODULE_DEVICE_TABLE(amba, etm4_ids);
  
  static struct amba_driver etm4x_amba_driver = {
-@@ -2521,6 +2532,11 @@ static int __init etm4x_init(void)
+@@ -2532,6 +2543,11 @@ static int __init etm4x_init(void)
  {
  	int ret;
  
@@ -1372,7 +1372,7 @@ index 14bb31bd6a0b..0529359d7440 100644
  	ret = etm4_pm_setup();
  
  	/* etm4_pm_setup() does its own cleanup - exit on error */
-@@ -2547,6 +2563,9 @@ static int __init etm4x_init(void)
+@@ -2558,6 +2574,9 @@ static int __init etm4x_init(void)
  
  static void __exit etm4x_exit(void)
  {
@@ -1643,10 +1643,10 @@ index a1b21ea14e54..3076237c435d 100644
  	if (err)
  		goto err_out_driver;
 diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index d92bf887739d..039fd5620282 100644
+index 3345b3298daf..473935984d36 100644
 --- a/drivers/usb/core/hub.c
 +++ b/drivers/usb/core/hub.c
-@@ -5902,6 +5902,13 @@ static void hub_event(struct work_struct *work)
+@@ -5907,6 +5907,13 @@ static void hub_event(struct work_struct *work)
  			(u16) hub->change_bits[0],
  			(u16) hub->event_bits[0]);
  
@@ -2568,7 +2568,7 @@ index 000000000000..d62a9e896b5e
 +
 +#endif /* _RH_WAIVED_H */
 diff --git a/include/linux/sched.h b/include/linux/sched.h
-index c7cdbb3e4aa6..feaaa8602a59 100644
+index 8b3d47a325cc..86c3f2a9136a 100644
 --- a/include/linux/sched.h
 +++ b/include/linux/sched.h
 @@ -867,9 +867,15 @@ struct task_struct {
@@ -2618,10 +2618,10 @@ index 153e9043058f..2ee3a8990968 100644
 +
  #endif /* ! __LINUX_SECURITY_H */
 diff --git a/init/main.c b/init/main.c
-index 92d34e496a33..05d799f92383 100644
+index 2613d3f9b3ce..6b9f62f36903 100644
 --- a/init/main.c
 +++ b/init/main.c
-@@ -1242,8 +1242,10 @@ static bool __init_or_module initcall_blacklisted(initcall_t fn)
+@@ -1246,8 +1246,10 @@ static bool __init_or_module initcall_blacklisted(initcall_t fn)
  	char fn_name[KSYM_SYMBOL_LEN];
  	unsigned long addr;
  
@@ -2632,7 +2632,7 @@ index 92d34e496a33..05d799f92383 100644
  
  	addr = (unsigned long) dereference_function_descriptor(fn);
  	sprint_symbol_no_offset(fn_name, addr);
-@@ -1254,6 +1256,9 @@ static bool __init_or_module initcall_blacklisted(initcall_t fn)
+@@ -1258,6 +1260,9 @@ static bool __init_or_module initcall_blacklisted(initcall_t fn)
  	 */
  	strreplace(fn_name, ' ', '\0');
  
