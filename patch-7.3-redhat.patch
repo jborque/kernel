@@ -78,10 +78,10 @@
  77 files changed, 2679 insertions(+), 113 deletions(-)
 
 diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index 68647ff4bdd2..a786aad83a2b 100644
+index 33cd30996e47..ac78c658c2ca 100644
 --- a/Documentation/admin-guide/kernel-parameters.txt
 +++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -6726,6 +6726,20 @@ Kernel parameters
+@@ -6689,6 +6689,20 @@ Kernel parameters
  		2	The "airplane mode" button toggles between everything
  			blocked and everything unblocked.
  
@@ -102,7 +102,7 @@ index 68647ff4bdd2..a786aad83a2b 100644
  	ring3mwait=disable
  			[KNL] Disable ring 3 MONITOR/MWAIT feature on supported
  			CPUs.
-@@ -8131,6 +8145,15 @@ Kernel parameters
+@@ -8094,6 +8108,15 @@ Kernel parameters
  	unknown_nmi_panic
  			[X86] Cause panic on unknown NMI.
  
@@ -201,7 +201,7 @@ index 000000000000..85771d74c34f
 +
 +endmenu
 diff --git a/Makefile b/Makefile
-index 66654fa71655..c695c48745a0 100644
+index 0f1b80100b47..d90c275b745c 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -358,6 +358,17 @@ ifneq ($(filter install,$(MAKECMDGOALS)),)
@@ -2620,10 +2620,10 @@ index 153e9043058f..2ee3a8990968 100644
 +
  #endif /* ! __LINUX_SECURITY_H */
 diff --git a/init/main.c b/init/main.c
-index c05e63b8ea06..ff7a1bb0a359 100644
+index 31f2bf54976a..9f8b7f7bedb6 100644
 --- a/init/main.c
 +++ b/init/main.c
-@@ -1246,8 +1246,10 @@ static bool __init_or_module initcall_blacklisted(initcall_t fn)
+@@ -1251,8 +1251,10 @@ static bool __init_or_module initcall_blacklisted(initcall_t fn)
  	char fn_name[KSYM_SYMBOL_LEN];
  	unsigned long addr;
  
@@ -2634,7 +2634,7 @@ index c05e63b8ea06..ff7a1bb0a359 100644
  
  	addr = (unsigned long) dereference_function_descriptor(fn);
  	sprint_symbol_no_offset(fn_name, addr);
-@@ -1258,6 +1260,9 @@ static bool __init_or_module initcall_blacklisted(initcall_t fn)
+@@ -1263,6 +1265,9 @@ static bool __init_or_module initcall_blacklisted(initcall_t fn)
  	 */
  	strreplace(fn_name, ' ', '\0');
  
