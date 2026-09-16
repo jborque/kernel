@@ -1,3 +1,6 @@
+https://gitlab.com/cki-project/kernel-ark/-/commit/a332c348910b3a190e497d49ab01f39e6a68f9f2
+ a332c348910b3a190e497d49ab01f39e6a68f9f2 Revert "isofs: Drop support of directory entries straddling blocks"
+
 https://gitlab.com/cki-project/kernel-ark/-/commit/23b9796ebedddb871a84e4445667eeda2314248a
  23b9796ebedddb871a84e4445667eeda2314248a sched: move stack_canary to the start of the randomizable region
 

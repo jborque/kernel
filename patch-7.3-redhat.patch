@@ -42,6 +42,8 @@
  fs/afs/main.c                                      |   3 +
  fs/erofs/super.c                                   |   9 +
  fs/ext4/super.c                                    |  11 +
+ fs/isofs/dir.c                                     |  28 +-
+ fs/isofs/namei.c                                   |  35 +-
  include/linux/crypto.h                             |   2 +
  include/linux/efi.h                                |  22 +-
  include/linux/kernel.h                             |  28 ++
@@ -75,7 +77,7 @@
  tools/testing/selftests/bpf/DENYLIST.rhel          |  76 +++
  tools/testing/selftests/bpf/Makefile               |   2 +-
  tools/testing/selftests/bpf/prog_tests/ksyms_btf.c |  31 --
- 77 files changed, 2679 insertions(+), 113 deletions(-)
+ 79 files changed, 2731 insertions(+), 124 deletions(-)
 
 diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
 index 33cd30996e47..ac78c658c2ca 100644
@@ -1725,6 +1727,127 @@ index bca0dc87d0b7..01940cbe1ad8 100644
  	/* Register sysfs after all initializations are complete. */
  	err = ext4_register_sysfs(sb);
  	if (err)
+diff --git a/fs/isofs/dir.c b/fs/isofs/dir.c
+index c7ca7603e97a..a96268c9ca41 100644
+--- a/fs/isofs/dir.c
++++ b/fs/isofs/dir.c
+@@ -84,7 +84,7 @@ int get_acorn_filename(struct iso_directory_record *de,
+  */
+ static int do_isofs_readdir(struct inode *inode, struct file *file,
+ 		struct dir_context *ctx,
+-		char *tmpname)
++		char *tmpname, struct iso_directory_record *tmpde)
+ {
+ 	unsigned long bufsize = ISOFS_BUFFER_SIZE(inode);
+ 	unsigned char bufbits = ISOFS_BUFFER_BITS(inode);
+@@ -133,7 +133,24 @@ static int do_isofs_readdir(struct inode *inode, struct file *file,
+ 		offset_saved = offset;
+ 		offset += de_len;
+ 
+-		if (!isofs_dir_record_valid(de, offset_saved, bufsize)) {
++		/* Make sure we have a full directory entry */
++		if (offset >= bufsize) {
++			int slop = bufsize - offset + de_len;
++			memcpy(tmpde, de, slop);
++			offset &= bufsize - 1;
++			block++;
++			brelse(bh);
++			bh = NULL;
++			if (offset) {
++				bh = isofs_bread(inode, block);
++				if (!bh)
++					return 0;
++				memcpy((void *) tmpde + slop, bh->b_data, offset);
++			}
++			de = tmpde;
++		}
++		if (!isofs_dir_record_valid(de, de == tmpde ? 0 : offset_saved,
++					    de == tmpde ? de_len : bufsize)) {
+ 			printk(KERN_NOTICE "iso9660: Corrupted directory entry"
+ 			       " in block %lu of inode %llu\n", block,
+ 			       inode->i_ino);
+@@ -235,13 +252,16 @@ static int isofs_readdir(struct file *file, struct dir_context *ctx)
+ {
+ 	int result;
+ 	char *tmpname;
++	struct iso_directory_record *tmpde;
+ 	struct inode *inode = file_inode(file);
+ 
+-	tmpname = kmalloc(1024, GFP_KERNEL);
++	tmpname = kmalloc(PAGE_SIZE, GFP_KERNEL);
+ 	if (tmpname == NULL)
+ 		return -ENOMEM;
+ 
+-	result = do_isofs_readdir(inode, file, ctx, tmpname);
++	tmpde = (struct iso_directory_record *) (tmpname+1024);
++
++	result = do_isofs_readdir(inode, file, ctx, tmpname, tmpde);
+ 
+ 	kfree(tmpname);
+ 	return result;
+diff --git a/fs/isofs/namei.c b/fs/isofs/namei.c
+index 010682f5901a..a161b28893d6 100644
+--- a/fs/isofs/namei.c
++++ b/fs/isofs/namei.c
+@@ -48,7 +48,7 @@ isofs_cmp(struct dentry *dentry, const char *compare, int dlen)
+ static unsigned long
+ isofs_find_entry(struct inode *dir, struct dentry *dentry,
+ 	unsigned long *block_rv, unsigned long *offset_rv,
+-	char *tmpname)
++	char *tmpname, struct iso_directory_record *tmpde)
+ {
+ 	unsigned long bufsize = ISOFS_BUFFER_SIZE(dir);
+ 	unsigned char bufbits = ISOFS_BUFFER_BITS(dir);
+@@ -91,7 +91,25 @@ isofs_find_entry(struct inode *dir, struct dentry *dentry,
+ 		offset += de_len;
+ 		f_pos += de_len;
+ 
+-		if (!isofs_dir_record_valid(de, offset_saved, bufsize)) {
++		/* Make sure we have a full directory entry */
++		if (offset >= bufsize) {
++			int slop = bufsize - offset + de_len;
++			memcpy(tmpde, de, slop);
++			offset &= bufsize - 1;
++			block++;
++			brelse(bh);
++			bh = NULL;
++			if (offset) {
++				bh = isofs_bread(dir, block);
++				if (!bh)
++					return 0;
++				memcpy((void *) tmpde + slop, bh->b_data, offset);
++			}
++			de = tmpde;
++		}
++
++		if (!isofs_dir_record_valid(de, de == tmpde ? 0 : offset_saved,
++					    de == tmpde ? de_len : bufsize)) {
+ 			printk(KERN_NOTICE "iso9660: Corrupted directory entry"
+ 			       " in block %lu of inode %llu\n", block,
+ 			       dir->i_ino);
+@@ -151,14 +169,17 @@ struct dentry *isofs_lookup(struct inode *dir, struct dentry *dentry, unsigned i
+ 	unsigned long block;
+ 	unsigned long offset;
+ 	struct inode *inode;
+-	char *tmpname;
++	struct page *page;
+ 
+-	tmpname = kmalloc(1024, GFP_USER);
+-	if (!tmpname)
++	page = alloc_page(GFP_USER);
++	if (!page)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	found = isofs_find_entry(dir, dentry, &block, &offset, tmpname);
+-	kfree(tmpname);
++	found = isofs_find_entry(dir, dentry,
++				&block, &offset,
++				page_address(page),
++				1024 + page_address(page));
++	__free_page(page);
+ 
+ 	inode = found ? isofs_iget(dir->i_sb, block, offset) : NULL;
+ 
 diff --git a/include/linux/crypto.h b/include/linux/crypto.h
 index b7c97f1c47c9..0a484f45b24a 100644
 --- a/include/linux/crypto.h

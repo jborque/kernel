@@ -4855,6 +4855,9 @@ fi\
 #
 #
 %changelog
+* Wed Sep 16 2026 Justin M. Forbes <jforbes@fedoraproject.org> [7.3.0-0.rc3.260916g9b87fdc9af2f.34]
+- Revert "isofs: Drop support of directory entries straddling blocks" (Justin M. Forbes)
+
 * Wed Sep 16 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.3.0-0.rc3.9b87fdc9af2f.34]
 - redhat: fix builds by disabling HYPERV_MOUSE_KUNIT_TEST (Nico Pache)
 - sched: move stack_canary to the start of the randomizable region (Scott Weaver)
