@@ -22,7 +22,7 @@
  drivers/ata/libahci.c                              |  18 +
  drivers/char/ipmi/ipmi_dmi.c                       |  15 +
  drivers/char/ipmi/ipmi_msghandler.c                |  16 +-
- drivers/char/random.c                              | 128 ++++-
+ drivers/char/random.c                              | 133 +++++
  drivers/firmware/efi/Makefile                      |   1 +
  drivers/firmware/efi/efi.c                         | 124 +++--
  drivers/firmware/efi/libstub/fdt.c                 |   5 +
@@ -77,7 +77,7 @@
  tools/testing/selftests/bpf/DENYLIST.rhel          |  76 +++
  tools/testing/selftests/bpf/Makefile               |   2 +-
  tools/testing/selftests/bpf/prog_tests/ksyms_btf.c |  31 --
- 79 files changed, 2731 insertions(+), 124 deletions(-)
+ 79 files changed, 2737 insertions(+), 123 deletions(-)
 
 diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
 index 33cd30996e47..ac78c658c2ca 100644
@@ -870,7 +870,7 @@ index 152dd6b5bb27..e1ceb726eb51 100644
  	rv = ipmi_register_driver();
  	mutex_unlock(&ipmi_interfaces_mutex);
 diff --git a/drivers/char/random.c b/drivers/char/random.c
-index b4da1fb976c1..7ff4dd4d9836 100644
+index b4da1fb976c1..863a8c1dda10 100644
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
 @@ -51,9 +51,11 @@
@@ -885,7 +885,20 @@ index b4da1fb976c1..7ff4dd4d9836 100644
  #include <crypto/chacha.h>
  #include <crypto/blake2s.h>
  #include <vdso/datapage.h>
-@@ -320,6 +322,11 @@ static void crng_fast_key_erasure(u8 key[CHACHA_KEY_SIZE],
+@@ -114,6 +116,12 @@ EXPORT_SYMBOL(rng_is_initialized);
+ static void __cold crng_set_ready(struct work_struct *work)
+ {
+ 	static_branch_enable(&crng_is_ready);
++
++#ifdef CONFIG_RHEL_DIFFERENCES
++	if (IS_ENABLED(CONFIG_VDSO_GETRANDOM))
++		if (!fips_enabled)
++			WRITE_ONCE(vdso_k_rng_data->is_ready, true);
++#endif
+ }
+ 
+ /* Used by wait_for_random_bytes(), and considered an entropy collector, below. */
+@@ -320,6 +328,11 @@ static void crng_fast_key_erasure(u8 key[CHACHA_KEY_SIZE],
  	memzero_explicit(first_block, sizeof(first_block));
  }
  
@@ -897,17 +910,18 @@ index b4da1fb976c1..7ff4dd4d9836 100644
  /*
   * This function returns a ChaCha state that you may use for generating
   * random data. It also returns up to 32 bytes on its own of random data
-@@ -732,7 +739,8 @@ static void __cold _credit_init_bits(size_t bits)
+@@ -731,8 +744,10 @@ static void __cold _credit_init_bits(size_t bits)
+ 		if (system_dfl_wq)
  			queue_work(system_dfl_wq, &set_ready);
  		atomic_notifier_call_chain(&random_ready_notifier, 0, NULL);
++#ifndef CONFIG_RHEL_DIFFERENCES
  		if (IS_ENABLED(CONFIG_VDSO_GETRANDOM))
--			WRITE_ONCE(vdso_k_rng_data->is_ready, true);
-+			if (!fips_enabled)
-+				WRITE_ONCE(vdso_k_rng_data->is_ready, true);
+ 			WRITE_ONCE(vdso_k_rng_data->is_ready, true);
++#endif
  		wake_up_interruptible(&crng_init_wait);
  		kill_fasync(&fasync, SIGIO, POLL_IN);
  		pr_notice("crng init done\n");
-@@ -751,6 +759,9 @@ static void __cold _credit_init_bits(size_t bits)
+@@ -751,6 +766,9 @@ static void __cold _credit_init_bits(size_t bits)
  }
  
  
@@ -917,7 +931,7 @@ index b4da1fb976c1..7ff4dd4d9836 100644
  /**********************************************************************
   *
   * Entropy collection routines.
-@@ -967,6 +978,19 @@ void __init add_bootloader_randomness(const void *buf, size_t len)
+@@ -967,6 +985,19 @@ void __init add_bootloader_randomness(const void *buf, size_t len)
  		credit_init_bits(len * 8);
  }
  
@@ -937,7 +951,7 @@ index b4da1fb976c1..7ff4dd4d9836 100644
  #if IS_ENABLED(CONFIG_VMGENID)
  static BLOCKING_NOTIFIER_HEAD(vmfork_chain);
  
-@@ -1381,6 +1405,7 @@ SYSCALL_DEFINE3(getrandom, char __user *, ubuf, size_t, len, unsigned int, flags
+@@ -1381,6 +1412,7 @@ SYSCALL_DEFINE3(getrandom, char __user *, ubuf, size_t, len, unsigned int, flags
  {
  	struct iov_iter iter;
  	int ret;
@@ -945,7 +959,7 @@ index b4da1fb976c1..7ff4dd4d9836 100644
  
  	if (flags & ~(GRND_NONBLOCK | GRND_RANDOM | GRND_INSECURE))
  		return -EINVAL;
-@@ -1392,6 +1417,23 @@ SYSCALL_DEFINE3(getrandom, char __user *, ubuf, size_t, len, unsigned int, flags
+@@ -1392,6 +1424,23 @@ SYSCALL_DEFINE3(getrandom, char __user *, ubuf, size_t, len, unsigned int, flags
  	if ((flags & (GRND_INSECURE | GRND_RANDOM)) == (GRND_INSECURE | GRND_RANDOM))
  		return -EINVAL;
  
@@ -969,7 +983,7 @@ index b4da1fb976c1..7ff4dd4d9836 100644
  	if (!crng_ready() && !(flags & GRND_INSECURE)) {
  		if (flags & GRND_NONBLOCK)
  			return -EAGAIN;
-@@ -1412,6 +1454,12 @@ static __poll_t random_poll(struct file *file, poll_table *wait)
+@@ -1412,6 +1461,12 @@ static __poll_t random_poll(struct file *file, poll_table *wait)
  	return crng_ready() ? EPOLLIN | EPOLLRDNORM : EPOLLOUT | EPOLLWRNORM;
  }
  
@@ -982,7 +996,7 @@ index b4da1fb976c1..7ff4dd4d9836 100644
  static ssize_t write_pool_user(struct iov_iter *iter)
  {
  	u8 block[BLAKE2S_BLOCK_SIZE];
-@@ -1552,7 +1600,58 @@ static int random_fasync(int fd, struct file *filp, int on)
+@@ -1552,7 +1607,58 @@ static int random_fasync(int fd, struct file *filp, int on)
  	return fasync_helper(fd, filp, on, &fasync);
  }
  
@@ -1041,7 +1055,7 @@ index b4da1fb976c1..7ff4dd4d9836 100644
  	.read_iter = random_read_iter,
  	.write_iter = random_write_iter,
  	.poll = random_poll,
-@@ -1565,6 +1664,7 @@ const struct file_operations random_fops = {
+@@ -1565,6 +1671,7 @@ const struct file_operations random_fops = {
  };
  
  const struct file_operations urandom_fops = {
@@ -1049,7 +1063,7 @@ index b4da1fb976c1..7ff4dd4d9836 100644
  	.read_iter = urandom_read_iter,
  	.write_iter = random_write_iter,
  	.unlocked_ioctl = random_ioctl,
-@@ -1575,6 +1675,32 @@ const struct file_operations urandom_fops = {
+@@ -1575,6 +1682,32 @@ const struct file_operations urandom_fops = {
  	.splice_write = iter_file_splice_write,
  };
  
