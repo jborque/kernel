@@ -203,7 +203,7 @@ index 000000000000..85771d74c34f
 +
 +endmenu
 diff --git a/Makefile b/Makefile
-index 0f1b80100b47..d90c275b745c 100644
+index 751a08643bf8..9cfbf0f0c662 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -358,6 +358,17 @@ ifneq ($(filter install,$(MAKECMDGOALS)),)
@@ -780,7 +780,7 @@ index 163a3cccf197..cce23a1b5d71 100644
  	acpi_dev_get_resources(device, &resource_list,
  			       acpi_check_serial_bus_slave,
 diff --git a/drivers/ata/libahci.c b/drivers/ata/libahci.c
-index 6d72eb017b49..0a6701eb8d37 100644
+index 08ab56e95566..3d29a2511800 100644
 --- a/drivers/ata/libahci.c
 +++ b/drivers/ata/libahci.c
 @@ -727,6 +727,24 @@ int ahci_stop_engine(struct ata_port *ap)
@@ -1600,7 +1600,7 @@ index 8edad1830abe..e558acedfa44 100644
  };
  
 diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index c0efdbff5da7..8c6a9031899b 100644
+index 3c412c7fb6fe..b7a037802763 100644
 --- a/drivers/scsi/qla2xxx/qla_os.c
 +++ b/drivers/scsi/qla2xxx/qla_os.c
 @@ -8319,6 +8319,7 @@ static const struct pci_error_handlers qla2xxx_err_handler = {
