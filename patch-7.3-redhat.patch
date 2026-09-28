@@ -80,10 +80,10 @@
  79 files changed, 2737 insertions(+), 123 deletions(-)
 
 diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index c6d636b0d709..dddf8e58064f 100644
+index e75344f4e0cd..fd09bcf40d2f 100644
 --- a/Documentation/admin-guide/kernel-parameters.txt
 +++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -6692,6 +6692,20 @@ Kernel parameters
+@@ -6690,6 +6690,20 @@ Kernel parameters
  		2	The "airplane mode" button toggles between everything
  			blocked and everything unblocked.
  
@@ -104,7 +104,7 @@ index c6d636b0d709..dddf8e58064f 100644
  	ring3mwait=disable
  			[KNL] Disable ring 3 MONITOR/MWAIT feature on supported
  			CPUs.
-@@ -8097,6 +8111,15 @@ Kernel parameters
+@@ -8095,6 +8109,15 @@ Kernel parameters
  	unknown_nmi_panic
  			[X86] Cause panic on unknown NMI.
  
@@ -203,7 +203,7 @@ index 000000000000..85771d74c34f
 +
 +endmenu
 diff --git a/Makefile b/Makefile
-index 751a08643bf8..9cfbf0f0c662 100644
+index 6b8b812f23b9..230fee887d20 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -358,6 +358,17 @@ ifneq ($(filter install,$(MAKECMDGOALS)),)
@@ -1742,7 +1742,7 @@ index bca0dc87d0b7..01940cbe1ad8 100644
  	err = ext4_register_sysfs(sb);
  	if (err)
 diff --git a/fs/isofs/dir.c b/fs/isofs/dir.c
-index c7ca7603e97a..a96268c9ca41 100644
+index 28741251d56e..6a471d31b399 100644
 --- a/fs/isofs/dir.c
 +++ b/fs/isofs/dir.c
 @@ -84,7 +84,7 @@ int get_acorn_filename(struct iso_directory_record *de,
@@ -1754,7 +1754,7 @@ index c7ca7603e97a..a96268c9ca41 100644
  {
  	unsigned long bufsize = ISOFS_BUFFER_SIZE(inode);
  	unsigned char bufbits = ISOFS_BUFFER_BITS(inode);
-@@ -133,7 +133,24 @@ static int do_isofs_readdir(struct inode *inode, struct file *file,
+@@ -129,7 +129,24 @@ static int do_isofs_readdir(struct inode *inode, struct file *file,
  		offset_saved = offset;
  		offset += de_len;
  
@@ -1780,7 +1780,7 @@ index c7ca7603e97a..a96268c9ca41 100644
  			printk(KERN_NOTICE "iso9660: Corrupted directory entry"
  			       " in block %lu of inode %llu\n", block,
  			       inode->i_ino);
-@@ -235,13 +252,16 @@ static int isofs_readdir(struct file *file, struct dir_context *ctx)
+@@ -231,13 +248,16 @@ static int isofs_readdir(struct file *file, struct dir_context *ctx)
  {
  	int result;
  	char *tmpname;
@@ -1800,7 +1800,7 @@ index c7ca7603e97a..a96268c9ca41 100644
  	kfree(tmpname);
  	return result;
 diff --git a/fs/isofs/namei.c b/fs/isofs/namei.c
-index 010682f5901a..a161b28893d6 100644
+index 4fba1bf7f016..5b7945e3bf77 100644
 --- a/fs/isofs/namei.c
 +++ b/fs/isofs/namei.c
 @@ -48,7 +48,7 @@ isofs_cmp(struct dentry *dentry, const char *compare, int dlen)
@@ -1812,7 +1812,7 @@ index 010682f5901a..a161b28893d6 100644
  {
  	unsigned long bufsize = ISOFS_BUFFER_SIZE(dir);
  	unsigned char bufbits = ISOFS_BUFFER_BITS(dir);
-@@ -91,7 +91,25 @@ isofs_find_entry(struct inode *dir, struct dentry *dentry,
+@@ -93,7 +93,25 @@ isofs_find_entry(struct inode *dir, struct dentry *dentry,
  		offset += de_len;
  		f_pos += de_len;
  
@@ -1839,7 +1839,7 @@ index 010682f5901a..a161b28893d6 100644
  			printk(KERN_NOTICE "iso9660: Corrupted directory entry"
  			       " in block %lu of inode %llu\n", block,
  			       dir->i_ino);
-@@ -151,14 +169,17 @@ struct dentry *isofs_lookup(struct inode *dir, struct dentry *dentry, unsigned i
+@@ -153,14 +171,17 @@ struct dentry *isofs_lookup(struct inode *dir, struct dentry *dentry, unsigned i
  	unsigned long block;
  	unsigned long offset;
  	struct inode *inode;
@@ -2707,7 +2707,7 @@ index 000000000000..d62a9e896b5e
 +
 +#endif /* _RH_WAIVED_H */
 diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 705970d07614..51306ab30293 100644
+index d35ae49a991f..4c047c553804 100644
 --- a/include/linux/sched.h
 +++ b/include/linux/sched.h
 @@ -867,9 +867,15 @@ struct task_struct {
