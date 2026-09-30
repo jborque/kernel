@@ -2860,7 +2860,7 @@ index 244a939b9d2d..08684630820b 100644
  	}
  
 diff --git a/kernel/module/main.c b/kernel/module/main.c
-index d0e1e0bd2ad0..b940a2b8b32e 100644
+index c1b34dc1e89a..0325ceaa55b1 100644
 --- a/kernel/module/main.c
 +++ b/kernel/module/main.c
 @@ -66,6 +66,8 @@
@@ -2900,7 +2900,7 @@ index d0e1e0bd2ad0..b940a2b8b32e 100644
  	err = rewrite_section_headers(info, flags);
  	if (err)
  		return err;
-@@ -3987,6 +3996,10 @@ void print_modules(void)
+@@ -3991,6 +4000,10 @@ void print_modules(void)
  		pr_cont(" [last unloaded: %s%s]", last_unloaded_module.name,
  			last_unloaded_module.taints);
  	pr_cont("\n");

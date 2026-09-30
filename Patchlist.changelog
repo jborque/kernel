@@ -1,8 +1,8 @@
-https://gitlab.com/cki-project/kernel-ark/-/commit/27b5b38aa897df39c54619d86ac8f4ed8be03f4e
- 27b5b38aa897df39c54619d86ac8f4ed8be03f4e Revert "isofs: Drop support of directory entries straddling blocks"
+https://gitlab.com/cki-project/kernel-ark/-/commit/06a79efc1b92e51f6b4422c46c0904dcba97b016
+ 06a79efc1b92e51f6b4422c46c0904dcba97b016 Revert "isofs: Drop support of directory entries straddling blocks"
 
-https://gitlab.com/cki-project/kernel-ark/-/commit/8a4b8a3c2bf073a4cfb94bad0fddaacde12cbaab
- 8a4b8a3c2bf073a4cfb94bad0fddaacde12cbaab sched: move stack_canary to the start of the randomizable region
+https://gitlab.com/cki-project/kernel-ark/-/commit/57f2495976539dd42b8ec2e8f47b57991f203968
+ 57f2495976539dd42b8ec2e8f47b57991f203968 sched: move stack_canary to the start of the randomizable region
 
 https://gitlab.com/cki-project/kernel-ark/-/commit/faa9a507f7069bc3f3470ed3b344ada733d0d6ba
  faa9a507f7069bc3f3470ed3b344ada733d0d6ba random: set vdso is_ready later during boot process
