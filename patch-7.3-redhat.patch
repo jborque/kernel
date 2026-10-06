@@ -203,7 +203,7 @@ index 000000000000..85771d74c34f
 +
 +endmenu
 diff --git a/Makefile b/Makefile
-index 6b8b812f23b9..230fee887d20 100644
+index 7c855e6fe544..5f00483cce40 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -358,6 +358,17 @@ ifneq ($(filter install,$(MAKECMDGOALS)),)
@@ -289,10 +289,10 @@ index ffbc7f386131..abff04320b4e 100644
  	  The VM uses one page of physical memory for each page table.
  	  For systems with a lot of processes, this can use a lot of
 diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index b5a51b0ef944..68c30096c205 100644
+index cab741a695f5..f7beaea5c213 100644
 --- a/arch/arm64/Kconfig
 +++ b/arch/arm64/Kconfig
-@@ -1543,7 +1543,7 @@ endchoice
+@@ -1573,7 +1573,7 @@ endchoice
  
  config ARM64_FORCE_52BIT
  	bool "Force 52-bit virtual addresses for userspace"
@@ -1661,10 +1661,10 @@ index a1b21ea14e54..3076237c435d 100644
  	if (err)
  		goto err_out_driver;
 diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index 3345b3298daf..473935984d36 100644
+index b446905b48be..20e60bc403b4 100644
 --- a/drivers/usb/core/hub.c
 +++ b/drivers/usb/core/hub.c
-@@ -5907,6 +5907,13 @@ static void hub_event(struct work_struct *work)
+@@ -5912,6 +5912,13 @@ static void hub_event(struct work_struct *work)
  			(u16) hub->change_bits[0],
  			(u16) hub->event_bits[0]);
  
@@ -2795,7 +2795,7 @@ index 1e1a31673577..60af4f6c2316 100644
  obj-$(CONFIG_VHOST_TASK) += vhost_task.o
  
 diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
-index 2e3bf8113ae9..bee32ded79c1 100644
+index 7f11555a5070..837156259663 100644
 --- a/kernel/bpf/core.c
 +++ b/kernel/bpf/core.c
 @@ -549,7 +549,12 @@ void bpf_prog_kallsyms_del_all(struct bpf_prog *fp)
@@ -2812,7 +2812,7 @@ index 2e3bf8113ae9..bee32ded79c1 100644
  long bpf_jit_limit_max __read_mostly;
  
 diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index 244a939b9d2d..08684630820b 100644
+index 96217b99399d..7d56cfc40ed3 100644
 --- a/kernel/bpf/syscall.c
 +++ b/kernel/bpf/syscall.c
 @@ -28,6 +28,7 @@
@@ -2847,7 +2847,7 @@ index 244a939b9d2d..08684630820b 100644
  int sysctl_unprivileged_bpf_disabled __read_mostly =
  	IS_BUILTIN(CONFIG_BPF_UNPRIV_DEFAULT_OFF) ? 2 : 0;
  
-@@ -6707,6 +6725,11 @@ static int bpf_unpriv_handler(const struct ctl_table *table, int write,
+@@ -6724,6 +6742,11 @@ static int bpf_unpriv_handler(const struct ctl_table *table, int write,
  	if (write && !ret) {
  		if (locked_state && unpriv_enable != 1)
  			return -EPERM;
