@@ -192,18 +192,18 @@ Summary: The Linux kernel
 #  the --with-release option overrides this setting.)
 %define debugbuildsenabled 1
 # define buildid .local
-%define specrpmversion 7.2.9
-%define specversion 7.2.9
+%define specrpmversion 7.2.10
+%define specversion 7.2.10
 %define patchversion 7.2
-%define pkgrelease 101
+%define pkgrelease 100
 %define kversion 7
-%define tarfile_release 7.2.9
+%define tarfile_release 7.2.10
 # This is needed to do merge window version magic
 %define patchlevel 2
 # This allows pkg_release to have configurable %%{?dist} tag
-%define specrelease 101%{?buildid}%{?dist}
+%define specrelease 100%{?buildid}%{?dist}
 # This defines the kabi tarball version
-%define kabiversion 7.2.9
+%define kabiversion 7.2.10
 
 # If this variable is set to 1, a bpf selftests build failure will cause a
 # fatal kernel package build error
@@ -4964,8 +4964,12 @@ fi\
 #
 #
 %changelog
-* Fri Oct 09 2026 Justin M. Forbes <jforbes@fedoraproject.org> [7.2.9-101]
+* Sun Oct 11 2026 Justin M. Forbes <jforbes@fedoraproject.org> [7.2.10-100]
 - Revert af_alg_restrict sysctl for F43/44 (Justin M. Forbes)
+
+* Sun Oct 11 2026 Justin M. Forbes <jforbes@fedoraproject.org> [7.2.10-0]
+- Add config for ARM64_ERRATUM_3821522 (Justin M. Forbes)
+- Linux v7.2.10
 
 * Fri Oct 09 2026 Justin M. Forbes <jforbes@fedoraproject.org> [7.2.9-1]
 - Config fixes for RHEL configs with backports (Justin M. Forbes)

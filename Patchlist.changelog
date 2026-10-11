@@ -1,5 +1,5 @@
-https://gitlab.com/cki-project/kernel-ark/-/commit/4ce8c3329c572dcaad078f971bc49000334de5b1
- 4ce8c3329c572dcaad078f971bc49000334de5b1 Revert af_alg_restrict sysctl for F43/44
+https://gitlab.com/cki-project/kernel-ark/-/commit/c27051dc6f9ec3aae5b0f035fe4bccab1de51abc
+ c27051dc6f9ec3aae5b0f035fe4bccab1de51abc Revert af_alg_restrict sysctl for F43/44
 
 https://gitlab.com/cki-project/kernel-ark/-/commit/3142072770d64ee5ced172ddabe2eb8d7e6855c7
  3142072770d64ee5ced172ddabe2eb8d7e6855c7 spi: cs42l43: Workaround for wrong speaker ID on Dell XPS 13 DX13260
