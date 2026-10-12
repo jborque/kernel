@@ -203,7 +203,7 @@ index 000000000000..85771d74c34f
 +
 +endmenu
 diff --git a/Makefile b/Makefile
-index 7c855e6fe544..5f00483cce40 100644
+index 0dc1a9f4e63e..74c4d2290afc 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -358,6 +358,17 @@ ifneq ($(filter install,$(MAKECMDGOALS)),)
