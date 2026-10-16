@@ -1538,10 +1538,10 @@ index e16aa59dd7ac..5edbf7eb64fc 100644
  		return rc;
  	if (rc < 0) {
 diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index de9bbccda21f..31c0bebf897a 100644
+index 677cd8797d19..afabedefa603 100644
 --- a/drivers/pci/quirks.c
 +++ b/drivers/pci/quirks.c
-@@ -4499,6 +4499,30 @@ static void quirk_aspeed_pci_bridge_no_alias(struct pci_dev *pdev)
+@@ -4510,6 +4510,30 @@ static void quirk_aspeed_pci_bridge_no_alias(struct pci_dev *pdev)
  }
  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ASPEED, 0x1150, quirk_aspeed_pci_bridge_no_alias);
  
@@ -2044,10 +2044,10 @@ index f1dd417e54b2..95344281ed2c 100644
  
  struct taint_flag {
 diff --git a/include/linux/pci.h b/include/linux/pci.h
-index d31a8d107b1e..2944d6c5c484 100644
+index 5ffcf5ce8c96..c0aa72f6eac5 100644
 --- a/include/linux/pci.h
 +++ b/include/linux/pci.h
-@@ -1723,6 +1723,7 @@ int pci_add_dynid(struct pci_driver *drv,
+@@ -1724,6 +1724,7 @@ int pci_add_dynid(struct pci_driver *drv,
  		  unsigned long driver_data);
  const struct pci_device_id *pci_match_id(const struct pci_device_id *ids,
  					 struct pci_dev *dev);
@@ -2055,7 +2055,7 @@ index d31a8d107b1e..2944d6c5c484 100644
  int pci_scan_bridge(struct pci_bus *bus, struct pci_dev *dev, int max,
  		    int pass);
  
-@@ -2917,6 +2918,10 @@ static inline bool pci_is_thunderbolt_attached(struct pci_dev *pdev)
+@@ -2918,6 +2919,10 @@ static inline bool pci_is_thunderbolt_attached(struct pci_dev *pdev)
  	return false;
  }
  
