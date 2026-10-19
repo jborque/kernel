@@ -203,7 +203,7 @@ index 000000000000..85771d74c34f
 +
 +endmenu
 diff --git a/Makefile b/Makefile
-index 0dc1a9f4e63e..74c4d2290afc 100644
+index c61ea07ee505..4b1bfe478f4b 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -358,6 +358,17 @@ ifneq ($(filter install,$(MAKECMDGOALS)),)
@@ -1538,7 +1538,7 @@ index e16aa59dd7ac..5edbf7eb64fc 100644
  		return rc;
  	if (rc < 0) {
 diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 677cd8797d19..afabedefa603 100644
+index 1aa87a3ef9ed..59ed9c2bf2d4 100644
 --- a/drivers/pci/quirks.c
 +++ b/drivers/pci/quirks.c
 @@ -4510,6 +4510,30 @@ static void quirk_aspeed_pci_bridge_no_alias(struct pci_dev *pdev)
@@ -1720,10 +1720,10 @@ index 0967aace9f7f..a72ec3339e4e 100644
  }
  
 diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index d636b89090a2..f2b7943e48d8 100644
+index 3ace06b4f9e3..36ee3f0a52d1 100644
 --- a/fs/ext4/super.c
 +++ b/fs/ext4/super.c
-@@ -5761,6 +5761,17 @@ static int __ext4_fill_super(struct fs_context *fc, struct super_block *sb)
+@@ -5769,6 +5769,17 @@ static int __ext4_fill_super(struct fs_context *fc, struct super_block *sb)
  	atomic_set(&sbi->s_warning_count, 0);
  	atomic_set(&sbi->s_msg_count, 0);
  
