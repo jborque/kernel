@@ -77,10 +77,10 @@
  76 files changed, 2679 insertions(+), 108 deletions(-)
 
 diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index e75344f4e0cd..fd09bcf40d2f 100644
+index b5d7e6a6d5bc..1448163d761e 100644
 --- a/Documentation/admin-guide/kernel-parameters.txt
 +++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -6690,6 +6690,20 @@ Kernel parameters
+@@ -6637,6 +6637,20 @@ Kernel parameters
  		2	The "airplane mode" button toggles between everything
  			blocked and everything unblocked.
  
@@ -101,7 +101,7 @@ index e75344f4e0cd..fd09bcf40d2f 100644
  	ring3mwait=disable
  			[KNL] Disable ring 3 MONITOR/MWAIT feature on supported
  			CPUs.
-@@ -8095,6 +8109,15 @@ Kernel parameters
+@@ -8054,6 +8068,15 @@ Kernel parameters
  	unknown_nmi_panic
  			[X86] Cause panic on unknown NMI.
  
@@ -200,7 +200,7 @@ index 000000000000..85771d74c34f
 +
 +endmenu
 diff --git a/Makefile b/Makefile
-index c61ea07ee505..4b1bfe478f4b 100644
+index 4aa0850747e6..cae3bfabab83 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -358,6 +358,17 @@ ifneq ($(filter install,$(MAKECMDGOALS)),)
@@ -286,10 +286,10 @@ index ffbc7f386131..abff04320b4e 100644
  	  The VM uses one page of physical memory for each page table.
  	  For systems with a lot of processes, this can use a lot of
 diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index cab741a695f5..f7beaea5c213 100644
+index 906f408bc9b8..cfabfe087e1a 100644
 --- a/arch/arm64/Kconfig
 +++ b/arch/arm64/Kconfig
-@@ -1573,7 +1573,7 @@ endchoice
+@@ -1599,7 +1599,7 @@ endchoice
  
  config ARM64_FORCE_52BIT
  	bool "Force 52-bit virtual addresses for userspace"
@@ -299,10 +299,10 @@ index cab741a695f5..f7beaea5c213 100644
  	  For systems with 52-bit userspace VAs enabled, the kernel will attempt
  	  to maintain compatibility with older software by providing 48-bit VAs
 diff --git a/arch/arm64/kernel/setup.c b/arch/arm64/kernel/setup.c
-index 29c6100f0c50..fecb897b1457 100644
+index a707deba6ae7..05518c0e02ca 100644
 --- a/arch/arm64/kernel/setup.c
 +++ b/arch/arm64/kernel/setup.c
-@@ -32,6 +32,8 @@
+@@ -33,6 +33,8 @@
  #include <linux/sched/task.h>
  #include <linux/scs.h>
  #include <linux/mm.h>
@@ -363,7 +363,7 @@ index b0d00032479d..afb9544fb007 100644
  /*
   * DIAG 308 support
 diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
-index b1e798f8e1dd..c11298f71f62 100644
+index c441b1357492..98219f12350f 100644
 --- a/arch/s390/kernel/ipl.c
 +++ b/arch/s390/kernel/ipl.c
 @@ -2551,3 +2551,8 @@ int ipl_report_free(struct ipl_report *report)
@@ -398,10 +398,10 @@ index b60284328fe3..e4d37b08ca29 100644
  	/* boot_command_line has been already set up in early.c */
  	*cmdline_p = boot_command_line;
 diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-index c7352827f491..09b2c1c67f3a 100644
+index 7d0b9bdc64cc..6dbfd673c058 100644
 --- a/arch/x86/kernel/cpu/common.c
 +++ b/arch/x86/kernel/cpu/common.c
-@@ -1807,6 +1807,7 @@ static void __init early_identify_cpu(struct cpuinfo_x86 *c)
+@@ -1834,6 +1834,7 @@ static void __init early_identify_cpu(struct cpuinfo_x86 *c)
  		get_cpu_vendor(c);
  		intel_unlock_cpuid_leafs(c);
  		get_cpu_cap(c);
@@ -1690,10 +1690,10 @@ index 7a883c59976f..907ec60e500a 100644
  
  error_proc:
 diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 0967aace9f7f..a72ec3339e4e 100644
+index 16fa3b853f1b..4d21c8054a51 100644
 --- a/fs/erofs/super.c
 +++ b/fs/erofs/super.c
-@@ -652,6 +652,9 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
+@@ -659,6 +659,9 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
  {
  	struct inode *inode;
  	struct erofs_sb_info *sbi = EROFS_SB(sb);
@@ -1703,7 +1703,7 @@ index 0967aace9f7f..a72ec3339e4e 100644
  	int err;
  
  	sb->s_magic = EROFS_SUPER_MAGIC;
-@@ -791,6 +794,12 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
+@@ -808,6 +811,12 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
  
  	sbi->dir_ra_bytes = EROFS_DIR_RA_BYTES;
  	erofs_info(sb, "mounted with root inode @ nid %llu.", sbi->root_nid);
@@ -1820,10 +1820,10 @@ index aa15ff88539b..08ae6d9c9af1 100644
  enum efi_secureboot_mode efi_get_secureboot_mode(efi_get_variable_t *get_var)
  {
 diff --git a/include/linux/kernel.h b/include/linux/kernel.h
-index 24414c79e59a..b086915ec6c0 100644
+index 4b11d1dc0a67..9d2591e49316 100644
 --- a/include/linux/kernel.h
 +++ b/include/linux/kernel.h
-@@ -194,4 +194,32 @@ extern enum system_states system_state;
+@@ -174,4 +174,32 @@ extern enum system_states system_state;
  # define REBUILD_DUE_TO_DYNAMIC_FTRACE
  #endif
  
@@ -1857,10 +1857,10 @@ index 24414c79e59a..b086915ec6c0 100644
 +
  #endif
 diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index 194084f60746..6d23112c1569 100644
+index 87d9d06710cb..a0dca6e06628 100644
 --- a/include/linux/lsm_hook_defs.h
 +++ b/include/linux/lsm_hook_defs.h
-@@ -456,6 +456,7 @@ LSM_HOOK(int, 0, bpf_token_capable, const struct bpf_token *token, int cap)
+@@ -460,6 +460,7 @@ LSM_HOOK(int, 0, bpf_token_capable, const struct bpf_token *token, int cap)
  
  LSM_HOOK(int, 0, locked_down, enum lockdown_reason what)
  
@@ -2583,10 +2583,10 @@ index 000000000000..d62a9e896b5e
 +
 +#endif /* _RH_WAIVED_H */
 diff --git a/include/linux/security.h b/include/linux/security.h
-index c7691feb8f8e..2a69c40ccb61 100644
+index 40831fab5470..5f1e561d57ae 100644
 --- a/include/linux/security.h
 +++ b/include/linux/security.h
-@@ -2439,4 +2439,13 @@ static inline void security_initramfs_populated(void)
+@@ -2469,4 +2469,13 @@ static inline void security_initramfs_populated(void)
  }
  #endif /* CONFIG_SECURITY */
  
