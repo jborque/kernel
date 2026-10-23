@@ -288,10 +288,10 @@ index ffbc7f386131..abff04320b4e 100644
  	  The VM uses one page of physical memory for each page table.
  	  For systems with a lot of processes, this can use a lot of
 diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index a8507da58eeb..f986cbdbe9b2 100644
+index d5ccf1d040c6..0d52f6d97af0 100644
 --- a/arch/arm64/Kconfig
 +++ b/arch/arm64/Kconfig
-@@ -1608,7 +1608,7 @@ endchoice
+@@ -1609,7 +1609,7 @@ endchoice
  
  config ARM64_FORCE_52BIT
  	bool "Force 52-bit virtual addresses for userspace"
@@ -400,10 +400,10 @@ index b60284328fe3..e4d37b08ca29 100644
  	/* boot_command_line has been already set up in early.c */
  	*cmdline_p = boot_command_line;
 diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-index 7d0b9bdc64cc..6dbfd673c058 100644
+index 9bd50c68cd7e..59ea485c076a 100644
 --- a/arch/x86/kernel/cpu/common.c
 +++ b/arch/x86/kernel/cpu/common.c
-@@ -1834,6 +1834,7 @@ static void __init early_identify_cpu(struct cpuinfo_x86 *c)
+@@ -1831,6 +1831,7 @@ static void __init early_identify_cpu(struct cpuinfo_x86 *c)
  		get_cpu_vendor(c);
  		intel_unlock_cpuid_leafs(c);
  		get_cpu_cap(c);
@@ -660,7 +660,7 @@ index 7d2048da5c3a..6b4e2163fcc5 100644
  		alg->verify = sig_default_verify;
  	if (!alg->set_priv_key)
 diff --git a/crypto/testmgr.c b/crypto/testmgr.c
-index 4958211fbfa9..ee6d34885696 100644
+index 9419d61d0602..1c2e3469be5f 100644
 --- a/crypto/testmgr.c
 +++ b/crypto/testmgr.c
 @@ -3831,7 +3831,7 @@ static int test_akcipher_one(struct crypto_akcipher *tfm,
@@ -672,16 +672,16 @@ index 4958211fbfa9..ee6d34885696 100644
  		err = 0;
  		goto free_all;
  	}
-@@ -3967,7 +3967,7 @@ static int test_sig_one(struct crypto_sig *tfm, const struct sig_testvec *vecs)
+@@ -3968,7 +3968,7 @@ static int test_sig_one(struct crypto_sig *tfm, const struct sig_testvec *vecs)
  	 * Don't invoke sign test (which requires a private key)
- 	 * for vectors with only a public key.
+ 	 * for vectors with only a public key or an invalid signature.
  	 */
--	if (vecs->public_key_vec)
-+	if (1 || vecs->public_key_vec)
+-	if (vecs->public_key_vec || vecs->verify_error)
++	if (1 || vecs->public_key_vec || vecs->verify_error)
  		return 0;
  
  	sig_size = crypto_sig_maxsize(tfm);
-@@ -4790,14 +4790,12 @@ static const struct alg_test_desc alg_test_descs[] = {
+@@ -4791,14 +4791,12 @@ static const struct alg_test_desc alg_test_descs[] = {
  	}, {
  		.alg = "ecdh-nist-p256",
  		.test = alg_test_kpp,
